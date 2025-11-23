@@ -506,7 +506,7 @@
             loadingIndicator.style.display = 'block';
             
             try {
-                const response = await fetch('products_fixed.json');
+                const response = await fetch('products.json');
                 allProducts = await response.json();
                 displayedProducts = allProducts;
                 
