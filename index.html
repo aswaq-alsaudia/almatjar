@@ -15,7 +15,7 @@ from urllib.parse import quote
 # ════════════════════════════════════════════════════════════
 # إعدادات المشروع
 # ════════════════════════════════════════════════════════════
-GITHUB_TOKEN = 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
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')  # ضع التوكن في متغير البيئة
 GITHUB_REPO = "sherow1982/alsooq-alsaudi"
 GITHUB_BRANCH = "main"
 WHATSAPP_NUMBER = "201110760081"
@@ -294,13 +294,45 @@ def main():
     
     try:
         with open(PRODUCTS_FILE, 'r', encoding='utf-8') as f:
-            products = json.load(f)
+            content = f.read().strip()
+            
+            try:
+                products = json.loads(content)
+                if isinstance(products, dict):
+                    products = [products]
+            except json.JSONDecodeError:
+                products = []
+                for line in content.split('\n'):
+                    line = line.strip().rstrip(',')
+                    if line and line.startswith('{'):
+                        try:
+                            product = json.loads(line)
+                            products.append(product)
+                        except json.JSONDecodeError as e:
+                            continue
+            
+            if not isinstance(products, list):
+                products = [products]
+        
+        if not products:
+            print(f"❌ خطأ: لم يتم العثور على منتجات في الملف")
+            print(f"💡 تلميح: تحقق من أن الملف يحتوي على بيانات JSON صحيحة")
+            print(f"📄 مثال للتنسيق الصحيح:")
+            print(f'[')
+            print(f'  {{"id": 1, "title": "منتج", "price": 100, "sale_price": 80, "image_link": "https://..."}}')
+            print(f']')
+            return
+            
         print(f"✅ تم تحميل {len(products)} منتج من {PRODUCTS_FILE}")
     except FileNotFoundError:
         print(f"❌ خطأ: لم يتم العثور على الملف {PRODUCTS_FILE}")
         return
-    except json.JSONDecodeError:
-        print(f"❌ خطأ: ملف {PRODUCTS_FILE} غير صحيح")
+    except json.JSONDecodeError as e:
+        print(f"❌ خطأ في قراءة JSON: {str(e)}")
+        print(f"💡 تلميح: تأكد من أن الملف يحتوي على مصفوفة JSON صحيحة")
+        return
+    except Exception as e:
+        print(f"❌ خطأ غير متوقع: {str(e)}")
         return
     
     success_count = 0
