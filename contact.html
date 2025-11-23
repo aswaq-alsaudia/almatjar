@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تواصل معنا | السوق السعودي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            direction: rtl;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .topbar {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 0;
+            font-size: 13px;
+        }
+
+        .topbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .back-btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #2980b9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .contact-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .contact-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .contact-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .contact-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .contact-info {
+            font-size: 16px;
+            margin-bottom: 20px;
+            opacity: 0.95;
+        }
+
+        .whatsapp-btn {
+            background: #25D366;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            display: inline-block;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .whatsapp-btn:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+
+        .info-section h2 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .info-section p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-content">
+            <span>📞 خدمة العملاء: 201110760081</span>
+            <span>🚚 توصيل سريع لجميع أنحاء المملكة</span>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🛍️ السوق السعودي</div>
+            <a href="/" class="back-btn">← العودة للرئيسية</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>تواصل معنا</h1>
+        <p class="subtitle">نحن هنا لخدمتك على مدار الساعة. تواصل معنا عبر الواتساب للرد السريع على استفساراتك</p>
+
+        <div class="contact-methods">
+            <div class="contact-card">
+                <div class="contact-icon">📱</div>
+                <div class="contact-title">واتساب</div>
+                <div class="contact-info">+20 111 076 0081</div>
+                <a href="https://wa.me/201110760081?text=مرحباً، لدي استفسار عن منتجاتكم" class="whatsapp-btn" target="_blank">
+                    تواصل عبر واتساب
+                </a>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>ساعات العمل</h2>
+            <p><strong>🕐 خدمة العملاء:</strong> متاحة 24 ساعة / 7 أيام في الأسبوع</p>
+            <p><strong>🚚 معالجة الطلبات:</strong> من السبت إلى الخميس (9 صباحاً - 6 مساءً)</p>
+            <p><strong>📦 الشحن:</strong> يتم شحن الطلبات خلال 1-3 أيام عمل</p>
+        </div>
+
+        <div class="info-section">
+            <h2>الأسئلة الشائعة</h2>
+            <p><strong>س: كم يستغرق وصول الطلب؟</strong><br>
+            ج: يصل طلبك خلال 1-3 أيام عمل في جميع أنحاء المملكة.</p>
+
+            <p><strong>س: هل الشحن مجاني؟</strong><br>
+            ج: نعم، الشحن مجاني لجميع أنحاء المملكة العربية السعودية.</p>
+
+            <p><strong>س: كيف يمكنني تتبع طلبي؟</strong><br>
+            ج: سنرسل لك رابط التتبع عبر واتساب فور شحن طلبك.</p>
+
+            <p><strong>س: هل يمكنني إرجاع المنتج؟</strong><br>
+            ج: نعم، يمكنك الإرجاع خلال 14 يوم من تاريخ الاستلام بشروط معينة. راجع سياسة الإرجاع للتفاصيل.</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white;">
+            <h2 style="margin-bottom: 15px; color: white;">نحن في خدمتك دائماً</h2>
+            <p style="font-size: 16px; margin-bottom: 20px; color: white;">لا تتردد في التواصل معنا عبر واتساب لأي استفسار</p>
+            <a href="https://wa.me/201110760081?text=مرحباً، أحتاج إلى مساعدة" class="whatsapp-btn" target="_blank">
+                📱 تواصل الآن
+            </a>
+        </div>
+    </div>
+</body>
+</html>
