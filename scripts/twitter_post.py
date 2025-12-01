@@ -93,10 +93,10 @@ try:
     sale_price = product.get('sale_price', '')
     product_id = product['id']
     
-    # رابط واتساب (مثال: الرقم هو 966XXXXXXXXX غيّره لرقمك)
-    whatsapp_number = "966XXXXXXXXX"
+    # رابط واتساب
+    whatsapp_number = "201110760081"
     default_msg = f"مرحباً، أريد الاستفسار عن المنتج رقم {product_id} ({title})"
-    whatsapp_link = f"https://api.whatsapp.com/send?phone={whatsapp_number}&text={requests.utils.quote(default_msg)}"
+    whatsapp_link = f"https://wa.me/{whatsapp_number}?text={requests.utils.quote(default_msg)}"
 
     # رابط المنتج
     product_url = f"https://sherow1982.github.io/alsooq-alsaudi/products/{product_id}.html"
