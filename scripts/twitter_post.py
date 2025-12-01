@@ -16,62 +16,70 @@ SAUDI_REGIONS = [
     "الجبيل", "حائل", "خميس_مشيط", "أبها", "ينبع", "نجران", "جازان", "الظهران", "حفر_الباطن", "عنيزة"
 ]
 
+print("🚀 بدء سكريبت النشر على تويتر...")
+
 # تحميل المنتجات
-with open('products.json', 'r', encoding='utf-8') as f:
-    products = json.load(f)
+try:
+    with open('products.json', 'r', encoding='utf-8') as f:
+        products = json.load(f)
+    print(f"✅ تم تحميل {len(products)} منتج")
+except Exception as e:
+    print(f"❌ خطأ في تحميل المنتجات: {e}")
+    sys.exit(1)
 
 if not products or not isinstance(products, list):
     print("❌ ملف المنتجات غير صالح")
     sys.exit(1)
 
+# قراءة آخر منتج تم نشره
 index_file = 'scripts/post_index.txt'
 if os.path.exists(index_file):
     with open(index_file, 'r') as f:
         last_index = int(f.read().strip())
+    print(f"📊 آخر منتج تم نشره: {last_index}")
 else:
     last_index = -1
+    print("📊 هذا أول نشر")
 
 next_index = (last_index + 1) % len(products)
 product = products[next_index]
+print(f"📦 المنتج المختار: #{product['id']} - {product['title'][:50]}...")
 
-# بيانات X API
+# بيانات تويتر
 api_key = os.environ.get('TWITTER_API_KEY')
 api_secret = os.environ.get('TWITTER_API_SECRET')
 access_token = os.environ.get('TWITTER_ACCESS_TOKEN')
 access_secret = os.environ.get('TWITTER_ACCESS_SECRET')
 
 if not all([api_key, api_secret, access_token, access_secret]):
-    print("❌ X API keys missing!")
+    print("❌ Twitter API keys missing!")
     sys.exit(1)
 
+print("🔑 تم تحميل بيانات الـ API")
+
 try:
-    # استخدام OAuth 1.0a للمصادقة (يشتغل مع Free tier)
+    # استخدام Twitter API v1.1 فقط - الطريقة القديمة اللي بتشتغل مع Free tier
+    print("🔌 الاتصال بـ Twitter API v1.1...")
     auth = tweepy.OAuth1UserHandler(api_key, api_secret, access_token, access_secret)
-    
-    # API v1.1 لرفع الصور
-    api_v1 = tweepy.API(auth)
-    
-    # API v2 للنشر
-    client = tweepy.Client(
-        consumer_key=api_key,
-        consumer_secret=api_secret,
-        access_token=access_token,
-        access_token_secret=access_secret
-    )
+    api = tweepy.API(auth, wait_on_rate_limit=True)
     
     # التحقق من الاتصال
-    me = client.get_me()
-    print(f"✅ تم التحقق من الحساب: @{me.data.username}")
+    me = api.verify_credentials()
+    print(f"✅ تم التحقق من الحساب: @{me.screen_name}")
 
     # تجهيز الصورة
     media_ids = []
     if product.get('image_link'):
+        print(f"📸 تحميل الصورة من: {product['image_link'][:60]}...")
         try:
             response = requests.get(product['image_link'], timeout=15)
             if response.status_code == 200:
+                print("✅ تم تحميل الصورة بنجاح")
                 image = Image.open(BytesIO(response.content))
+                
                 # تحويل لـ RGB إذا لزم
                 if image.mode in ('RGBA', 'LA', 'P'):
+                    print(f"🔄 تحويل الصورة من {image.mode} إلى RGB")
                     background = Image.new('RGB', image.size, (255, 255, 255))
                     if image.mode == 'RGBA':
                         background.paste(image, mask=image.split()[-1])
@@ -84,8 +92,9 @@ try:
                 image.save(img_byte_arr, format='JPEG', quality=90)
                 img_byte_arr.seek(0)
                 
-                # رفع الصورة باستخدام v1.1
-                media = api_v1.media_upload(filename="product.jpg", file=img_byte_arr)
+                # رفع الصورة
+                print("📤 رفع الصورة إلى تويتر...")
+                media = api.media_upload(filename="product.jpg", file=img_byte_arr)
                 media_ids.append(media.media_id)
                 print(f"✅ تم رفع الصورة: {media.media_id}")
         except Exception as e:
@@ -124,21 +133,26 @@ try:
     message += f"🛒 صفحة المنتج: {product_url}\n"
     message += f"\n{prod_tag} #السوق_السعودي #عروض #تسوق {regions_tags}"
     
-    # نشر التغريدة باستخدام X API v2
-    if media_ids:
-        response = client.create_tweet(text=message, media_ids=media_ids)
-    else:
-        response = client.create_tweet(text=message)
+    print(f"📝 طول التغريدة: {len(message)} حرف")
     
-    tweet_id = response.data['id']
+    # نشر التغريدة باستخدام API v1.1 القديم
+    print("📤 نشر التغريدة...")
+    if media_ids:
+        status = api.update_status(status=message, media_ids=media_ids)
+    else:
+        status = api.update_status(status=message)
+    
     print(f"✅ نشر التغريدة بنجاح (منتج {product_id})")
-    print(f"📊 Tweet ID: {tweet_id}")
-    print(f"🔗 الرابط: https://x.com/{me.data.username}/status/{tweet_id}")
+    print(f"📊 Tweet ID: {status.id}")
+    print(f"🔗 الرابط: https://twitter.com/{status.user.screen_name}/status/{status.id}")
 
     # حفظ الفهرس التالي
     with open(index_file, 'w') as f:
         f.write(str(next_index))
     print(f"✅ تم حفظ الفهرس: {next_index}")
+    print(f"📊 المنتج التالي سيكون: {(next_index + 1) % len(products)}")
+    
+    print("\n🎉 تم إكمال العملية بنجاح!")
 
 except tweepy.errors.Unauthorized as e:
     print(f"❌ خطأ في المصادقة: {e}")
@@ -146,14 +160,17 @@ except tweepy.errors.Unauthorized as e:
     sys.exit(1)
 except tweepy.errors.Forbidden as e:
     print(f"❌ خطأ 403 Forbidden: {e}")
-    print("حسابك لا يملك صلاحيات الكتابة. تحتاج إلى:")
-    print("1. App permissions مضبوطة على 'Read and Write' في Developer Portal")
-    print("2. إعادة إنشاء Access Token & Secret بعد تغيير الصلاحيات")
-    print("3. تحديث GitHub Secrets بالقيم الجديدة")
+    print("حسابك لا يملك صلاحيات الكتابة.")
+    print("الحل:")
+    print("1. روح على: https://developer.twitter.com/en/portal/projects-and-apps")
+    print("2. App Settings → User authentication settings → Edit")
+    print("3. App permissions → Read and Write")
+    print("4. Save ثم Regenerate Access Token & Secret")
+    print("5. حدث GitHub Secrets بالقيم الجديدة")
     sys.exit(1)
 except tweepy.errors.TooManyRequests as e:
     print(f"❌ تجاوزت الحد المسموح: {e}")
-    print("Free tier: 100 Posts و 500 writes شهرياً")
+    print("Free tier: 100 Posts شهرياً")
     sys.exit(1)
 except Exception as e:
     print(f"❌ خطأ: {e}")
