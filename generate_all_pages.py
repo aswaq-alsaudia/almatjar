@@ -191,6 +191,44 @@ def generate_reviews(product_id, product_title):
     
     return reviews
 
+def generate_sitemap(products):
+    """توليد ملف sitemap.xml"""
+    base_url = "https://sherow1982.github.io/alsooq-alsaudi"
+    today = datetime.now().strftime('%Y-%m-%d')
+    
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>']
+    xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">')
+    
+    # الصفحات الثابتة
+    pages = ['index.html', 'about.html', 'contact.html', 'privacy.html', 'terms.html', 'shipping.html', 'return-policy.html']
+    for page in pages:
+        xml.append('  <url>')
+        xml.append(f'    <loc>{base_url}/{page}</loc>')
+        xml.append(f'    <lastmod>{today}</lastmod>')
+        xml.append('    <changefreq>weekly</changefreq>')
+        xml.append('    <priority>0.8</priority>')
+        xml.append('  </url>')
+
+    # المنتجات
+    for product in products:
+        slug = create_slug(product)
+        xml.append('  <url>')
+        xml.append(f'    <loc>{base_url}/products/{slug}.html</loc>')
+        xml.append(f'    <lastmod>{today}</lastmod>')
+        xml.append('    <changefreq>weekly</changefreq>')
+        xml.append('    <priority>0.8</priority>')
+        xml.append('    <image:image>')
+        xml.append(f'      <image:loc>{product["image_link"]}</image:loc>')
+        xml.append(f'      <image:title>{product["title"]}</image:title>')
+        xml.append('    </image:image>')
+        xml.append('  </url>')
+        
+    xml.append('</urlset>')
+    
+    with open('sitemap.xml', 'w', encoding='utf-8') as f:
+        f.write('\n'.join(xml))
+    print("✅ تم توليد sitemap.xml بنجاح")
+
 def generate_product_html(product, description, reviews):
     """توليد صفحة HTML لمنتج واحد"""
     slug = create_slug(product)
@@ -240,6 +278,14 @@ def generate_product_html(product, description, reviews):
     <meta property="og:description" content="{description[:200]}">
     <meta property="og:image" content="{product['image_link']}">
     <title>{product['title']} | السوق السعودي</title>
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':
+    new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    }})(window,document,'script','dataLayer','GTM-KD9H36GM');</script>
+    <!-- End Google Tag Manager -->
 
     <style>
         * {{
@@ -497,6 +543,60 @@ def generate_product_html(product, description, reviews):
             font-size: 14px;
             margin-top: 10px;
         }}
+
+        /* Footer Styles */
+        .footer {{
+            background: #2c3e50;
+            color: white;
+            padding: 40px 20px 20px;
+            margin-top: 60px;
+        }}
+
+        .footer-content {{
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 30px;
+        }}
+
+        .footer-section h3 {{
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: white;
+        }}
+
+        .footer-section p {{
+            line-height: 1.8;
+            opacity: 0.9;
+        }}
+
+        .footer-links {{
+            list-style: none;
+        }}
+
+        .footer-links li {{
+            margin-bottom: 12px;
+        }}
+
+        .footer-links a {{
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }}
+
+        .footer-links a:hover {{
+            opacity: 1;
+        }}
+
+        .footer-bottom {{
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            opacity: 0.8;
+        }}
         
         @media (max-width: 768px) {{
             .product-main {{
@@ -514,6 +614,11 @@ def generate_product_html(product, description, reviews):
     </style>
 </head>
 <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KD9H36GM"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
     <div class="topbar">
         <div class="topbar-content">
             <span>📞 خدمة العملاء: {WHATSAPP_NUMBER}</span>
@@ -580,6 +685,40 @@ def generate_product_html(product, description, reviews):
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>عن السوق السعودي</h3>
+                <p>متجرك الإلكتروني الموثوق لأفضل المنتجات الأصلية بأسعار تنافسية. نوفر توصيل سريع ومجاني لجميع أنحاء المملكة العربية السعودية.</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>روابط سريعة</h3>
+                <ul class="footer-links">
+                    <li><a href="../index.html">الرئيسية</a></li>
+                    <li><a href="../about.html">من نحن</a></li>
+                    <li><a href="../contact.html">تواصل معنا</a></li>
+                    <li><a href="https://wa.me/{WHATSAPP_NUMBER}" target="_blank">📱 واتساب</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>السياسات</h3>
+                <ul class="footer-links">
+                    <li><a href="../privacy.html">سياسة الخصوصية</a></li>
+                    <li><a href="../terms.html">الشروط والأحكام</a></li>
+                    <li><a href="../shipping.html">سياسة الشحن</a></li>
+                    <li><a href="../return-policy.html">سياسة الإرجاع</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 السوق السعودي. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
 </body>
 </html>"""
     
@@ -665,6 +804,9 @@ def main():
             fail_count += 1
             print(f"❌ [{idx}/{len(products)}] خطأ: {str(e)}")
     
+    # توليد خريطة الموقع
+    generate_sitemap(products)
+
     print()
     print("─" * 60)
     print("╔════════════════════════════════════════════════════════════╗")
