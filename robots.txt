@@ -3,7 +3,7 @@ Allow: /
 Allow: /products/
 Allow: /index.html
 
-Sitemap: https://alsooq-alsaudi.arabsad.com/sitemap.xml
+Sitemap: https://sherow1982.github.io/alsooq-alsaudi/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1

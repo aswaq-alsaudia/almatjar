@@ -376,54 +376,7 @@ def generate_product_html(product):
     
     return html
 
-def generate_product_feed(products):
-    """توليد ملف product-feed.xml لـ Google Merchant Center"""
-    base_url = "https://sherow1982.github.io/alsooq-alsaudi"
-    
-    xml = ['<?xml version="1.0" encoding="UTF-8"?>']
-    xml.append('<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">')
-    xml.append('  <channel>')
-    xml.append('    <title>السوق السعودي</title>')
-    xml.append(f'    <link>{base_url}/</link>')
-    xml.append('    <description>أفضل العروض والمنتجات الأصلية بأسعار تنافسية</description>')
-    
-    for product in products:
-        slug = create_slug(product)
-        encoded_slug = quote(slug)
-        product_link = f"{base_url}/products/{encoded_slug}.html"
-        
-        image_link = fix_image_url(product['image_link'])
-        google_cat, product_type = get_product_category(product['title'])
-        
-        discount = product['price'] - product['sale_price']
-        description = f"{product['title']} - منتج أصلي بضمان الجودة. وفر {discount} ريال الآن!"
-        
-        xml.append('    <item>')
-        xml.append(f'      <g:id>{product["id"]}</g:id>')
-        xml.append(f'      <g:title><![CDATA[{product["title"]}]]></g:title>')
-        xml.append(f'      <g:description><![CDATA[{description}]]></g:description>')
-        xml.append(f'      <g:link>{product_link}</g:link>')
-        xml.append(f'      <g:image_link>{image_link}</g:image_link>')
-        xml.append('      <g:condition>new</g:condition>')
-        xml.append('      <g:availability>in stock</g:availability>')
-        xml.append(f'      <g:price>{product["price"]} SAR</g:price>')
-        xml.append(f'      <g:sale_price>{product["sale_price"]} SAR</g:sale_price>')
-        xml.append('      <g:brand>السوق السعودي</g:brand>')
-        xml.append(f'      <g:google_product_category>{google_cat}</g:google_product_category>')
-        xml.append(f'      <g:product_type>{product_type}</g:product_type>')
-        xml.append('      <g:shipping>')
-        xml.append('        <g:country>SA</g:country>')
-        xml.append('        <g:service>Standard</g:service>')
-        xml.append('        <g:price>0 SAR</g:price>')
-        xml.append('      </g:shipping>')
-        xml.append('    </item>')
-        
-    xml.append('  </channel>')
-    xml.append('</rss>')
-    
-    with open('product-feed.xml', 'w', encoding='utf-8') as f:
-        f.write('\n'.join(xml))
-    print("✅ تم توليد product-feed.xml بنجاح")
+
 
 def generate_sitemap(products):
     """توليد sitemap.xml"""
@@ -507,7 +460,7 @@ def main():
     print(f"\n✅ تم إنشاء {success_count} صفحة منتج بنجاح\n")
     
     generate_sitemap(products)
-    generate_product_feed(products)
+
 
     print()
     print("─" * 60)

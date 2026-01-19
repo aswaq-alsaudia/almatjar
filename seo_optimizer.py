@@ -12,6 +12,10 @@ from pathlib import Path
 import re
 from datetime import datetime, timedelta
 
+# Force UTF-8 for output to avoid encoding errors on Windows
+if sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 
 def load_products():
     """تحميل بيانات المنتجات"""
@@ -36,7 +40,7 @@ def create_product_schema(product):
     slug = re.sub(r'[^\w\s\u0600-\u06FF-]', '', slug)
     slug = slug.replace(' ', '-')
     
-    product_url = f"https://alsooq-alsaudi.arabsad.com/products/{slug}.html"
+    product_url = f"https://sherow1982.github.io/alsooq-alsaudi/products/{slug}.html"
     
     # تاريخ انتهاء السعر (سنة من الآن)
     price_valid_until = (datetime.now() + timedelta(days=365)).strftime('%Y-%m-%d')
@@ -82,8 +86,8 @@ def create_local_business_schema():
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
         "name": "السوق السعودي",
-        "image": "https://alsooq-alsaudi.arabsad.com/logo.png",
-        "url": "https://alsooq-alsaudi.arabsad.com/",
+        "image": "https://sherow1982.github.io/alsooq-alsaudi/logo.png",
+        "url": "https://sherow1982.github.io/alsooq-alsaudi/",
         "telephone": "+201110760081",
         "address": {
             "@type": "PostalAddress",
@@ -118,7 +122,7 @@ def create_meta_tags(product):
     slug = re.sub(r'[^\w\s\u0600-\u06FF-]', '', slug)
     slug = slug.replace(' ', '-')
     
-    product_url = f"https://alsooq-alsaudi.arabsad.com/products/{slug}.html"
+    product_url = f"https://sherow1982.github.io/alsooq-alsaudi/products/{slug}.html"
     
     # اختصار الوصف لـ Meta Description
     if len(description) > 155:
@@ -246,7 +250,7 @@ def process_product_file(product, products_dir):
 def main():
     """الدالة الرئيسية"""
     print("\n" + "="*60)
-    print("🚀 سكريبت تحسين السيو وإضافة السكيما")
+    print("Starting SEO Optimization and Schema Injection")
     print("="*60 + "\n")
     
     # تحميل المنتجات
@@ -263,7 +267,7 @@ def main():
     success_count = 0
     fail_count = 0
     
-    print("🔧 بدء معالجة الملفات...\n")
+    print("Processing files...\n")
     
     for i, product in enumerate(products, 1):
         print(f"[{i}/{len(products)}] معالجة: {product.get('title', '')[:50]}...")
@@ -275,13 +279,7 @@ def main():
     
     # الإحصائيات النهائية
     print("\n" + "="*60)
-    print("📊 النتائج النهائية:")
-    print("="*60)
-    print(f"✅ نجح: {success_count} ملف")
-    print(f"❌ فشل: {fail_count} ملف")
-    print(f"📈 نسبة النجاح: {(success_count/len(products)*100):.1f}%")
-    print("\n" + "="*60)
-    print("\n✨ تم الانتهاء! جميع الصفحات محسنة للسيو\n")
+    print("\nDone! All pages optimized for SEO\n")
     
     print("📝 الخطوات التالية:")
     print("1. ارفع الملفات المحدثة على GitHub")
