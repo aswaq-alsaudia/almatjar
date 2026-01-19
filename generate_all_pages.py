@@ -1,273 +1,93 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-سكربت توليد صفحات المنتجات مع التقييمات والأوصاف
-يقوم بإنشاء:
-1. صفحات HTML لجميع المنتجات (2188 صفحة)
-2. ملف reviews.json للتقييمات
-3. ملف descriptions.json للأوصاف
-"""
-
 import json
 import re
-import os
 import random
-from datetime import datetime, timedelta
+from pathlib import Path
 from urllib.parse import quote
+from datetime import datetime
 
-# ════════════════════════════════════════════════════════════
-# إعدادات المشروع
-# ════════════════════════════════════════════════════════════
-WHATSAPP_NUMBER = "201110760081"
-PRODUCTS_FILE = "products.json"
-OUTPUT_DIR = "products"
-REVIEWS_FILE = "reviews.json"
-DESCRIPTIONS_FILE = "descriptions.json"
+def load_descriptions():
+    """تحميل الوصف من ملف descriptions.json"""
+    try:
+        with open('descriptions.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return list(data.values())
+    except Exception as e:
+        print(f"⚠️ خطأ في تحميل الوصف: {e}")
+        return []
 
-# ════════════════════════════════════════════════════════════
-# بيانات التقييمات
-# ════════════════════════════════════════════════════════════
-
-SAUDI_NAMES = [
-    "محمد العتيبي", "عبدالله السبيعي", "فهد الدوسري", "سعود القحطاني",
-    "خالد الشمري", "عبدالعزيز المطيري", "فيصل الحربي", "سلمان الغامدي",
-    "ناصر الزهراني", "يوسف العنزي", "أحمد الشهري", "عمر البقمي",
-    "علي الجهني", "حمد الرشيدي", "صالح العمري", "طلال السهلي",
-    "نورة المالكي", "سارة الأحمدي", "منى الخالدي", "فاطمة العسيري",
-    "هند القرشي", "ريم الثقفي", "لولوة العتيبي", "مها السديري",
-    "عبير الدوسري", "أمل الحمد", "نادية السلمي", "وفاء المري",
-    "بدر الجبرين", "ماجد الفهد", "تركي العبدالله", "راشد المنصور",
-    "عادل الراجحي", "وليد الفوزان", "عبدالرحمن الصالح", "بندر العقيل",
-    "جواهر الحسين", "لطيفة الناصر", "شهد الكريم", "دانة العلي"
-]
-
-REVIEW_TEMPLATES = [
-    "منتج ممتاز وجودة عالية جداً، أنصح بالشراء بقوة",
-    "وصلني المنتج في وقت قياسي والجودة فاقت التوقعات",
-    "صراحة منتج رائع واستخدمته وحسيت بفرق واضح",
-    "جودة ممتازة وسعر مناسب، تعاملت مع البائع أكثر من مرة",
-    "المنتج أصلي ومطابق للوصف تماماً، شكراً للبائع",
-    "استلمت الطلب بحالة ممتازة، التغليف احترافي جداً",
-    "منتج يستحق الشراء، جربته وكانت النتيجة رائعة",
-    "ما شاء الله المنتج فوق الممتاز، سأطلب مرة أخرى",
-    "جودة عالية وسعر منافس، أنصح الجميع بالتجربة",
-    "منتج أصلي ومضمون، شكراً على الخدمة الرائعة",
-    "استخدمته من أسبوع والنتيجة واضحة، راضي جداً",
-    "التوصيل سريع والمنتج بحالة ممتازة، شكراً",
-    "منتج رهيب وفعال، لاحظت الفرق من أول استخدام",
-    "جودة ممتازة ومطابق للمواصفات، ما تردد بالشراء",
-    "البائع متعاون والمنتج أفضل من المتوقع",
-    "صراحة منتج يستاهل كل ريال دفعته فيه",
-    "جربت منتجات كثيرة لكن هذا الأفضل بلا منازع",
-    "المنتج وصل بسرعة والتعبئة محترمة جداً",
-    "راضي تماماً عن الجودة والسعر، شكراً",
-    "منتج ممتاز ينفع هدية، طلبت منه أكثر من مرة",
-    "جودة عالية وسعر معقول، تجربة ممتازة",
-    "المنتج فعال ونتائجه سريعة، أنصح به بشدة",
-    "استلمت الطلب في الموعد والمنتج فوق التوقعات",
-    "تعامل راقي وجودة ممتازة، سأكون عميل دائم",
-    "المنتج أصلي ومضمون، جربته وكانت النتيجة رائعة",
-    "صراحة ما توقعت يكون بهذه الجودة، ممتاز جداً",
-    "منتج يستحق التقييم الخمس نجوم، راضي تماماً",
-    "جودة ممتازة وخدمة احترافية، شكراً لكم",
-    "المنتج وصل بحالة ممتازة والسعر مناسب جداً",
-    "تجربة رائعة من البداية للنهاية، أنصح بالشراء"
-]
-
-# ════════════════════════════════════════════════════════════
-# دوال توليد الأوصاف الذكية
-# ════════════════════════════════════════════════════════════
-
-def generate_smart_description(product_title):
-    """توليد وصف ذكي للمنتج حسب نوعه"""
-    
-    title_lower = product_title.lower()
-    
-    # منتجات العناية بالشعر
-    if any(word in title_lower for word in ['شعر', 'شامبو', 'بلسم', 'زيت', 'ماسك']):
-        descriptions = [
-            f"يوفر {product_title} عناية متكاملة للشعر من الجذور حتى الأطراف بتركيبة غنية بالمكونات الطبيعية. يعمل على تقوية بصيلات الشعر وتغذيتها بعمق لمنحك شعر صحي ولامع. مناسب للاستخدام اليومي على جميع أنواع الشعر.",
-            f"تم تصميم {product_title} خصيصاً لمعالجة مشاكل الشعر الشائعة وتحسين مظهره بشكل ملحوظ. يحتوي على تركيبة متوازنة تغذي الشعر وتحميه من التلف والتقصف. يمنحك نتائج احترافية من الاستخدام الأول.",
-            f"يتميز {product_title} بتركيبة فريدة تجمع بين الفعالية والأمان للعناية المثالية بالشعر. يعمل على ترطيب الشعر بعمق وإصلاح التلف الناتج عن العوامل الخارجية. منتج موثوق يحقق نتائج مذهلة في وقت قصير."
-        ]
-    
-    # منتجات العناية بالبشرة
-    elif any(word in title_lower for word in ['بشرة', 'كريم', 'سيروم', 'واقي', 'مرطب', 'تفتيح']):
-        descriptions = [
-            f"يقدم {product_title} حلاً متكاملاً للعناية بالبشرة بمكونات طبيعية آمنة وفعالة. يعمل على تحسين ملمس البشرة ومظهرها مع ترطيب عميق يدوم طويلاً. مناسب لجميع أنواع البشرة ويمنح نتائج مرئية سريعة.",
-            f"صمم {product_title} بعناية فائقة ليمنح بشرتك العناية التي تستحقها بأعلى معايير الجودة. يحتوي على مكونات نشطة تعمل على تجديد خلايا البشرة ومكافحة علامات التقدم بالعمر. منتج آمن ومختبر طبياً لضمان أفضل النتائج.",
-            f"يتميز {product_title} بتركيبة متطورة تجمع بين الفعالية والأمان لبشرة صحية ومشرقة. يعمل على معالجة مشاكل البشرة الشائعة ويمنحها النضارة والحيوية. استخدام منتظم يضمن نتائج استثنائية وبشرة خالية من العيوب."
-        ]
-    
-    # الأجهزة الإلكترونية
-    elif any(word in title_lower for word in ['جهاز', 'ماكينة', 'آلة', 'كهربائي', 'قابل للشحن']):
-        descriptions = [
-            f"يجمع {product_title} بين التقنية الحديثة والتصميم العملي لتوفير أداء متميز وموثوق. مصنوع من مواد عالية الجودة تضمن المتانة والاستخدام طويل الأمد. سهل الاستخدام ويحقق نتائج احترافية في المنزل.",
-            f"صمم {product_title} ليقدم لك تجربة استخدام مريحة وفعالة مع أحدث المواصفات التقنية. يتميز بأداء قوي وموثوق يلبي احتياجاتك اليومية بكفاءة عالية. استثمار ذكي يوفر عليك الوقت والجهد.",
-            f"يتميز {product_title} بجودة تصنيع عالية وأداء استثنائي يفوق التوقعات. مزود بخصائص متقدمة تسهل عليك المهام اليومية وتحقق نتائج ممتازة. منتج موثوق يجمع بين الجودة والسعر المناسب."
-        ]
-    
-    # المكملات والصحة
-    elif any(word in title_lower for word in ['فيتامين', 'مكمل', 'كبسولات', 'حبوب', 'علاج']):
-        descriptions = [
-            f"يوفر {product_title} الدعم الغذائي المثالي لصحة أفضل بمكونات طبيعية مختارة بعناية. تركيبة متوازنة تلبي احتياجات الجسم اليومية وتعزز الصحة العامة. منتج آمن ومطابق لأعلى معايير الجودة العالمية.",
-            f"يتميز {product_title} بتركيبة فعالة تدعم وظائف الجسم الحيوية وتعزز الصحة بشكل طبيعي. مكونات نقية عالية الجودة تضمن الامتصاص الأمثل والنتائج الفعالة. مثالي للاستخدام اليومي ضمن نمط حياة صحي.",
-            f"صمم {product_title} لتوفير العناصر الأساسية التي يحتاجها جسمك بصورة متوازنة وآمنة. يساعد على تحسين الصحة العامة والحيوية مع الاستخدام المنتظم. منتج موثوق يحظى بثقة آلاف المستخدمين."
-        ]
-    
-    # الملابس والإكسسوارات
-    elif any(word in title_lower for word in ['مشد', 'ملابس', 'شورت', 'قميص', 'ساعة']):
-        descriptions = [
-            f"يجمع {product_title} بين الجودة العالية والتصميم العصري ليمنحك الراحة والأناقة. مصنوع من مواد فاخرة تدوم طويلاً وتحافظ على شكلها بعد الاستخدام المتكرر. خيار مثالي لمن يبحث عن الجودة والمظهر المميز.",
-            f"يتميز {product_title} بتصميم عملي وجودة تصنيع ممتازة تضمن الراحة والمتانة. مناسب للاستخدام اليومي ويمنحك إطلالة جذابة وعصرية. استثمار رائع يجمع بين الأناقة والجودة بسعر مناسب.",
-            f"صمم {product_title} بعناية فائقة ليوفر لك الراحة القصوى مع مظهر أنيق ومميز. مواد عالية الجودة ومقاسات دقيقة تناسب الجميع. منتج عملي يدوم طويلاً ويحافظ على جودته مع الاستخدام."
-        ]
-    
-    # افتراضي لأي منتج آخر
-    else:
-        descriptions = [
-            f"يقدم {product_title} جودة استثنائية وأداء موثوق يلبي احتياجاتك بكفاءة عالية. مصنوع من مواد عالية الجودة تضمن المتانة والاستخدام طويل الأمد. خيار ممتاز يجمع بين الجودة والسعر المناسب.",
-            f"يتميز {product_title} بمواصفات عالية الجودة وتصميم عملي يسهل الاستخدام اليومي. منتج موثوق يحقق نتائج ممتازة ويوفر قيمة حقيقية مقابل المال. استثمار ذكي لكل من يبحث عن الجودة والكفاءة.",
-            f"صمم {product_title} ليوفر لك تجربة استخدام مميزة بأعلى معايير الجودة والأمان. يجمع بين الفعالية والموثوقية لتحقيق أفضل النتائج. منتج عملي يلبي توقعاتك ويفوقها بكل تأكيد."
-        ]
-    
+def get_random_description(title):
+    """الحصول على وصف عشوائي مناسب للمنتج"""
+    descriptions = load_descriptions()
+    if not descriptions:
+        return f"{title} - منتج أصلي بضمان الجودة. اطلب الآن من السوق السعودي!"
     return random.choice(descriptions)
 
-# ════════════════════════════════════════════════════════════
-# دوال مساعدة
-# ════════════════════════════════════════════════════════════
-
 def create_slug(product):
-    """إنشاء slug آمن من ID والعنوان"""
-    # استخدام ID + أول 80 حرف من العنوان
-    title_part = product['title'][:80].strip().replace(' ', '-')
-    # إزالة جميع الحروف الخطرة
-    title_part = re.sub(r'[<>:"/\\|?*+()]', '', title_part)
+    """توليد slug فريد للمنتج"""
+    stop_words = ['من', 'في', 'على', 'الى', 'عن', 'و', 'مع', 'يا', 'أيها']
     
-    return f"{product['id']}-{title_part}"
+    title = product['title']
+    for word in stop_words:
+        title = title.replace(f' {word} ', ' ')
 
-def generate_reviews(product_id, product_title):
-    """توليد تقييمات عشوائية للمنتج"""
-    num_reviews = random.randint(15, 20)
-    reviews = []
-    used_names = set()
-    used_texts = set()
-    
-    for _ in range(num_reviews):
-        # اختيار اسم غير مكرر
-        available_names = [n for n in SAUDI_NAMES if n not in used_names]
-        if not available_names:
-            used_names.clear()
-            available_names = SAUDI_NAMES.copy()
-        
-        name = random.choice(available_names)
-        used_names.add(name)
-        
-        # اختيار نص تقييم غير مكرر
-        available_texts = [t for t in REVIEW_TEMPLATES if t not in used_texts]
-        if not available_texts:
-            used_texts.clear()
-            available_texts = REVIEW_TEMPLATES.copy()
-        
-        text = random.choice(available_texts)
-        used_texts.add(text)
-        
-        # تقييم من 4 أو 5 نجوم
-        rating = random.choice([4, 4, 5, 5, 5])  # ترجيح 5 نجوم
-        
-        # تاريخ عشوائي في آخر 6 أشهر
-        days_ago = random.randint(1, 180)
-        date = (datetime.now() - timedelta(days=days_ago)).strftime('%Y-%m-%d')
-        
-        reviews.append({
-            'name': name,
-            'rating': rating,
-            'text': text,
-            'date': date
-        })
-    
-    # ترتيب حسب التاريخ (الأحدث أولاً)
-    reviews.sort(key=lambda x: x['date'], reverse=True)
-    
-    return reviews
+    slug = re.sub(r'[^\w\s-]', '', title).strip().lower()
+    slug = re.sub(r'\s+', '-', slug)
+    return f"{product['id']}-{slug}"
 
-def generate_sitemap(products):
-    """توليد ملف sitemap.xml"""
-    base_url = "https://sherow1982.github.io/alsooq-alsaudi"
-    today = datetime.now().strftime('%Y-%m-%d')
+def fix_image_url(url):
+    """إصلاح رابط الصورة واستبدال الامتدادات غير المدعومة"""
+    if not url:
+        return ""
     
-    xml = ['<?xml version="1.0" encoding="UTF-8"?>']
-    xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">')
-    
-    # الصفحات الثابتة
-    pages = ['index.html', 'about.html', 'contact.html', 'privacy.html', 'terms.html', 'shipping.html', 'return-policy.html']
-    for page in pages:
-        xml.append('  <url>')
-        xml.append(f'    <loc>{base_url}/{page}</loc>')
-        xml.append(f'    <lastmod>{today}</lastmod>')
-        xml.append('    <changefreq>weekly</changefreq>')
-        xml.append('    <priority>0.8</priority>')
-        xml.append('  </url>')
+    lower_url = url.lower()
+    if lower_url.endswith('.mp4'):
+        return url[:-4] + '.jpg'
+    elif lower_url.endswith('.webp'):
+        return url[:-5] + '.jpg'
+    return url
 
-    # المنتجات
-    for product in products:
-        slug = create_slug(product)
-        xml.append('  <url>')
-        xml.append(f'    <loc>{base_url}/products/{slug}.html</loc>')
-        xml.append(f'    <lastmod>{today}</lastmod>')
-        xml.append('    <changefreq>weekly</changefreq>')
-        xml.append('    <priority>0.8</priority>')
-        xml.append('    <image:image>')
-        xml.append(f'      <image:loc>{product["image_link"]}</image:loc>')
-        xml.append(f'      <image:title>{product["title"]}</image:title>')
-        xml.append('    </image:image>')
-        xml.append('  </url>')
-        
-    xml.append('</urlset>')
+def get_product_category(title):
+    """تحديد فئة المنتج بناءً على العنوان"""
+    title_lower = title.lower()
     
-    with open('sitemap.xml', 'w', encoding='utf-8') as f:
-        f.write('\n'.join(xml))
-    print("✅ تم توليد sitemap.xml بنجاح")
+    if any(word in title_lower for word in ['شعر', 'شامبو', 'بلسم', 'زيت', 'ماسك', 'صبغة', 'حلاقة']):
+        return 'Health & Beauty > Personal Care > Hair Care', 'العناية بالشعر'
+    elif any(word in title_lower for word in ['بشرة', 'كريم', 'سيروم', 'واقي', 'مرطب', 'تفتيح', 'صابون', 'غسول', 'مكياج', 'روج', 'شفاه']):
+        return 'Health & Beauty > Personal Care > Cosmetics', 'العناية بالجمال'
+    elif any(word in title_lower for word in ['جهاز', 'ماكينة', 'آلة', 'كهربائي', 'قابل للشحن', 'شاحن', 'سماعة', 'كاميرا', 'جوال', 'تابلت', 'ساعة']):
+        return 'Electronics', 'الإلكترونيات'
+    elif any(word in title_lower for word in ['فيتامين', 'مكمل', 'كبسولات', 'حبوب', 'علاج', 'مشد', 'مصحح', 'ركبة', 'ظهر']):
+        return 'Health & Beauty > Health Care', 'الصحة والعافية'
+    elif any(word in title_lower for word in ['ملابس', 'شورت', 'قميص', 'حقيبة', 'نظارة', 'حذاء', 'جورب']):
+        return 'Apparel & Accessories', 'الأزياء والموضة'
+    else:
+        return 'Home & Garden', 'المنزل والأدوات'
 
-def generate_product_html(product, description, reviews):
+def generate_product_html(product):
     """توليد صفحة HTML لمنتج واحد"""
     slug = create_slug(product)
+    encoded_slug = quote(slug)
+    image_link = fix_image_url(product['image_link'])
+    
     discount = product['price'] - product['sale_price']
     discount_percentage = int((discount / product['price']) * 100) if product['price'] > 0 else 0
     
-    # حساب متوسط التقييم
-    avg_rating = sum(r['rating'] for r in reviews) / len(reviews)
+    description = get_random_description(product['title'])
     
-    # توليد نجوم التقييم
-    stars_html = '★' * int(avg_rating) + '☆' * (5 - int(avg_rating))
-    
-    # رسالة واتساب محسّنة
-    product_url = f"https://sherow1982.github.io/alsooq-alsaudi/products/{slug}.html"
+    product_url = f"https://sherow1982.github.io/alsooq-alsaudi/products/{encoded_slug}.html"
     whatsapp_message = f"""مرحباً، أريد طلب المنتج التالي:
 
 📦 المنتج: {product['title']}
-💰 السعر: {product['sale_price']} ريال
+💰 السعر: {product['sale_price']} ريال (السعر الأصلي: {product['price']} ريال)
+💵 التوفير: {discount} ريال ({discount_percentage}% خصم)
 🔗 الرابط: {product_url}
 
-📝 بيانات الطلب:
-👤 الاسم: 
-📍 العنوان: 
-📱 رقم بديل: """
+يرجى تأكيد التوفر والتوصيل."""
     
-    # توليد HTML التقييمات
-    reviews_html = '\n'.join([f"""
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <span class="reviewer-name">{review['name']}</span>
-                            <span class="review-date">{review['date']}</span>
-                        </div>
-                        <div class="review-rating">{'★' * review['rating']}{'☆' * (5 - review['rating'])}</div>
-                    </div>
-                    <p class="review-text">{review['text']}</p>
-                </div>
-    """ for review in reviews])
-
+    whatsapp_link = f"https://wa.me/201110760081?text={quote(whatsapp_message)}"
+    
+    google_cat, product_type = get_product_category(product['title'])
+    
     html = f"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -276,7 +96,7 @@ def generate_product_html(product, description, reviews):
     <meta name="description" content="{description[:160]}">
     <meta property="og:title" content="{product['title']}">
     <meta property="og:description" content="{description[:200]}">
-    <meta property="og:image" content="{product['image_link']}">
+    <meta property="og:image" content="{image_link}">
     <title>{product['title']} | السوق السعودي</title>
 
     <!-- Google Tag Manager -->
@@ -293,22 +113,22 @@ def generate_product_html(product, description, reviews):
             padding: 0;
             box-sizing: border-box;
         }}
-        
+
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             direction: rtl;
             background: #f8f9fa;
             color: #333;
-            line-height: 1.6;
+            line-height: 1.8;
         }}
-        
+
         .topbar {{
             background: #2c3e50;
             color: white;
             padding: 10px 0;
             font-size: 13px;
         }}
-        
+
         .topbar-content {{
             max-width: 1200px;
             margin: 0 auto;
@@ -316,7 +136,7 @@ def generate_product_html(product, description, reviews):
             display: flex;
             justify-content: space-between;
         }}
-        
+
         .header {{
             background: white;
             border-bottom: 1px solid #e0e0e0;
@@ -326,7 +146,7 @@ def generate_product_html(product, description, reviews):
             z-index: 100;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }}
-        
+
         .header-content {{
             max-width: 1200px;
             margin: 0 auto;
@@ -335,13 +155,13 @@ def generate_product_html(product, description, reviews):
             justify-content: space-between;
             align-items: center;
         }}
-        
+
         .logo {{
             font-size: 24px;
             font-weight: bold;
             color: #2c3e50;
         }}
-        
+
         .back-btn {{
             background: #3498db;
             color: white;
@@ -350,265 +170,134 @@ def generate_product_html(product, description, reviews):
             text-decoration: none;
             transition: all 0.3s;
         }}
-        
+
         .back-btn:hover {{
             background: #2980b9;
         }}
-        
+
         .container {{
             max-width: 1200px;
-            margin: 30px auto;
+            margin: 40px auto;
             padding: 0 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }}
-        
+
         .product-main {{
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 40px;
-            padding: 30px;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }}
-        
+
         .product-gallery {{
-            text-align: center;
+            position: relative;
         }}
-        
+
         .product-image {{
             width: 100%;
-            max-width: 500px;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
+            height: auto;
+            border-radius: 12px;
+            object-fit: cover;
         }}
-        
-        .product-info {{
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }}
-        
-        .product-title {{
-            font-size: 28px;
-            font-weight: 600;
+
+        .product-info h1 {{
+            font-size: 32px;
             color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
         }}
-        
-        .product-rating {{
+
+        .prices {{
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 18px;
-            color: #f39c12;
+            gap: 15px;
+            margin-bottom: 20px;
         }}
-        
-        .rating-count {{
-            color: #7f8c8d;
-            font-size: 14px;
-        }}
-        
-        .price-section {{
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-right: 4px solid #27ae60;
-        }}
-        
+
         .current-price {{
             font-size: 36px;
             font-weight: bold;
             color: #27ae60;
         }}
-        
+
         .old-price {{
-            font-size: 20px;
+            font-size: 24px;
             text-decoration: line-through;
             color: #95a5a6;
-            margin-right: 10px;
         }}
-        
-        .discount-badge {{
-            display: inline-block;
+
+        .discount {{
             background: #e74c3c;
             color: white;
-            padding: 5px 15px;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
-            margin-top: 10px;
         }}
-        
+
+        .description {{
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.8;
+        }}
+
         .whatsapp-btn {{
             background: #25D366;
             color: white;
-            padding: 18px 30px;
-            border: none;
+            padding: 15px 30px;
             border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
             text-decoration: none;
-            display: block;
+            font-weight: bold;
+            font-size: 18px;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s;
         }}
-        
+
         .whatsapp-btn:hover {{
             background: #128C7E;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
-        }}
-        
-        .product-details {{
-            padding: 30px;
-            border-top: 1px solid #e0e0e0;
-        }}
-        
-        .section-title {{
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }}
-        
-        .description-text {{
-            font-size: 16px;
-            line-height: 1.8;
-            color: #555;
-        }}
-        
-        .reviews-section {{
-            padding: 30px;
-            border-top: 1px solid #e0e0e0;
-        }}
-        
-        .reviews-summary {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }}
-        
-        .avg-rating {{
-            text-align: center;
-        }}
-        
-        .avg-number {{
-            font-size: 48px;
-            font-weight: bold;
-            color: #2c3e50;
-        }}
-        
-        .avg-stars {{
-            font-size: 24px;
-            color: #f39c12;
-        }}
-        
-        .review-item {{
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
-        }}
-        
-        .review-header {{
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }}
-        
-        .reviewer-name {{
-            font-weight: 600;
-            color: #2c3e50;
-        }}
-        
-        .review-date {{
-            color: #95a5a6;
-            font-size: 14px;
-            margin-right: 10px;
-        }}
-        
-        .review-rating {{
-            color: #f39c12;
-        }}
-        
-        .review-text {{
-            color: #555;
-            line-height: 1.6;
-        }}
-        
-        .product-id {{
-            color: #95a5a6;
-            font-size: 14px;
-            margin-top: 10px;
         }}
 
-        /* Footer Styles */
-        .footer {{
-            background: #2c3e50;
-            color: white;
-            padding: 40px 20px 20px;
-            margin-top: 60px;
-        }}
-
-        .footer-content {{
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 30px;
-        }}
-
-        .footer-section h3 {{
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: white;
-        }}
-
-        .footer-section p {{
-            line-height: 1.8;
-            opacity: 0.9;
-        }}
-
-        .footer-links {{
-            list-style: none;
-        }}
-
-        .footer-links li {{
-            margin-bottom: 12px;
-        }}
-
-        .footer-links a {{
-            color: white;
-            text-decoration: none;
-            opacity: 0.9;
-            transition: opacity 0.3s;
-        }}
-
-        .footer-links a:hover {{
-            opacity: 1;
-        }}
-
-        .footer-bottom {{
-            text-align: center;
+        .product-meta {{
+            margin-top: 30px;
             padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            opacity: 0.8;
+            border-top: 1px solid #e0e0e0;
         }}
-        
+
+        .meta-item {{
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }}
+
+        .meta-label {{
+            color: #666;
+            font-weight: 500;
+        }}
+
+        .meta-value {{
+            color: #2c3e50;
+            font-weight: bold;
+        }}
+
         @media (max-width: 768px) {{
             .product-main {{
                 grid-template-columns: 1fr;
+                padding: 20px;
             }}
-            
-            .current-price {{
-                font-size: 28px;
+
+            .product-image {{
+                height: 300px;
             }}
-            
-            .product-title {{
-                font-size: 22px;
+
+            h1 {{
+                font-size: 24px;
             }}
         }}
     </style>
@@ -621,7 +310,7 @@ def generate_product_html(product, description, reviews):
 
     <div class="topbar">
         <div class="topbar-content">
-            <span>📞 خدمة العملاء: {WHATSAPP_NUMBER}</span>
+            <span>📞 خدمة العملاء: 201110760081</span>
             <span>🚚 توصيل سريع لجميع أنحاء المملكة</span>
         </div>
     </div>
@@ -636,192 +325,197 @@ def generate_product_html(product, description, reviews):
     <div class="container">
         <div class="product-main">
             <div class="product-gallery">
-                <img src="{product['image_link']}" alt="{product['title']}" class="product-image" loading="lazy">
+                <img src="{image_link}" alt="{product['title']}" class="product-image" loading="lazy">
             </div>
             
             <div class="product-info">
-                <h1 class="product-title">{product['title']}</h1>
+                <h1>{product['title']}</h1>
                 
-                <div class="product-rating">
-                    <span class="avg-stars">{stars_html}</span>
-                    <span class="rating-count">({len(reviews)} تقييم)</span>
+                <div class="prices">
+                    <span class="current-price">{product['sale_price']} ر.س</span>
+                    <span class="old-price">{product['price']} ر.س</span>
+                    <span class="discount">-{discount_percentage}%</span>
                 </div>
-                
-                <div class="price-section">
-                    <div>
-                        <span class="current-price">{product['sale_price']} ر.س</span>
-                        <span class="old-price">{product['price']} ر.س</span>
-                    </div>
-                    <div class="discount-badge">وفّر {discount} ر.س ({discount_percentage}% خصم)</div>
+
+                <div class="description">
+                    <strong>📝 وصف المنتج:</strong><br><br>
+                    {description}
                 </div>
-                
-                <a href="https://wa.me/{WHATSAPP_NUMBER}?text={quote(whatsapp_message)}" 
-                   class="whatsapp-btn" target="_blank">
-                    📱 اطلب الآن عبر واتساب
+
+                <a href="{whatsapp_link}" class="whatsapp-btn" target="_blank">
+                    📱 اطلب عبر واتساب
                 </a>
-                
-                <div class="product-id">رقم المنتج: PROD-{product['id']}</div>
-            </div>
-        </div>
-        
-        <div class="product-details">
-            <h2 class="section-title">وصف المنتج</h2>
-            <p class="description-text">{description}</p>
-        </div>
-        
-        <div class="reviews-section">
-            <h2 class="section-title">تقييمات العملاء</h2>
-            
-            <div class="reviews-summary">
-                <div class="avg-rating">
-                    <div class="avg-number">{avg_rating:.1f}</div>
-                    <div class="avg-stars">{stars_html}</div>
-                    <div class="rating-count">{len(reviews)} تقييم</div>
+
+                <div class="product-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">💵 التوفير</span>
+                        <span class="meta-value">{discount} ريال</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">📦 الفئة</span>
+                        <span class="meta-value">{product_type}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">🚚 الشحن</span>
+                        <span class="meta-value">مجاناً لجميع المملكة</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">⏱️ التوصيل</span>
+                        <span class="meta-value">1-3 أيام عمل</span>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="reviews-list">
-                {reviews_html}
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>عن السوق السعودي</h3>
-                <p>متجرك الإلكتروني الموثوق لأفضل المنتجات الأصلية بأسعار تنافسية. نوفر توصيل سريع ومجاني لجميع أنحاء المملكة العربية السعودية.</p>
-            </div>
-
-            <div class="footer-section">
-                <h3>روابط سريعة</h3>
-                <ul class="footer-links">
-                    <li><a href="../index.html">الرئيسية</a></li>
-                    <li><a href="../about.html">من نحن</a></li>
-                    <li><a href="../contact.html">تواصل معنا</a></li>
-                    <li><a href="https://wa.me/{WHATSAPP_NUMBER}" target="_blank">📱 واتساب</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>السياسات</h3>
-                <ul class="footer-links">
-                    <li><a href="../privacy.html">سياسة الخصوصية</a></li>
-                    <li><a href="../terms.html">الشروط والأحكام</a></li>
-                    <li><a href="../shipping.html">سياسة الشحن</a></li>
-                    <li><a href="../return-policy.html">سياسة الإرجاع</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <p>&copy; 2025 السوق السعودي. جميع الحقوق محفوظة.</p>
-        </div>
+    <footer style="background: #2c3e50; color: white; padding: 40px 20px; margin-top: 60px; text-align: center;">
+        <p>&copy; 2025 السوق السعودي. جميع الحقوق محفوظة.</p>
     </footer>
 </body>
 </html>"""
     
     return html
 
-
-def main():
-    print("╔════════════════════════════════════════════════════════════╗")
-    print("║  🚀 سكربت توليد صفحات المنتجات مع التقييمات والأوصاف    ║")
-    print("╚════════════════════════════════════════════════════════════╝")
-    print()
+def generate_product_feed(products):
+    """توليد ملف product-feed.xml لـ Google Merchant Center"""
+    base_url = "https://sherow1982.github.io/alsooq-alsaudi"
     
-    # قراءة المنتجات
-    try:
-        with open(PRODUCTS_FILE, 'r', encoding='utf-8') as f:
-            content = f.read().strip()
-            
-            # إصلاح التنسيق
-            if not content.startswith('['):
-                content = '[' + content
-            if not content.endswith(']'):
-                if content.endswith(','):
-                    content = content[:-1]
-                content = content + ']'
-            
-            products = json.loads(content)
-            
-        print(f"✅ تم تحميل {len(products)} منتج من {PRODUCTS_FILE}")
-    except Exception as e:
-        print(f"❌ خطأ في قراءة الملف: {str(e)}")
-        return
-    
-    # إنشاء مجلد products
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
-        print(f"✅ تم إنشاء مجلد {OUTPUT_DIR}")
-    
-    # توليد التقييمات والأوصاف
-    print("\n📝 جاري توليد التقييمات والأوصاف...")
-    all_reviews = {}
-    all_descriptions = {}
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>']
+    xml.append('<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">')
+    xml.append('  <channel>')
+    xml.append('    <title>السوق السعودي</title>')
+    xml.append(f'    <link>{base_url}/</link>')
+    xml.append('    <description>أفضل العروض والمنتجات الأصلية بأسعار تنافسية</description>')
     
     for product in products:
-        product_id = str(product['id'])
-        all_reviews[product_id] = generate_reviews(product['id'], product['title'])
-        all_descriptions[product_id] = generate_smart_description(product['title'])
+        slug = create_slug(product)
+        encoded_slug = quote(slug)
+        product_link = f"{base_url}/products/{encoded_slug}.html"
+        
+        image_link = fix_image_url(product['image_link'])
+        google_cat, product_type = get_product_category(product['title'])
+        
+        discount = product['price'] - product['sale_price']
+        description = f"{product['title']} - منتج أصلي بضمان الجودة. وفر {discount} ريال الآن!"
+        
+        xml.append('    <item>')
+        xml.append(f'      <g:id>{product["id"]}</g:id>')
+        xml.append(f'      <g:title><![CDATA[{product["title"]}]]></g:title>')
+        xml.append(f'      <g:description><![CDATA[{description}]]></g:description>')
+        xml.append(f'      <g:link>{product_link}</g:link>')
+        xml.append(f'      <g:image_link>{image_link}</g:image_link>')
+        xml.append('      <g:condition>new</g:condition>')
+        xml.append('      <g:availability>in stock</g:availability>')
+        xml.append(f'      <g:price>{product["price"]} SAR</g:price>')
+        xml.append(f'      <g:sale_price>{product["sale_price"]} SAR</g:sale_price>')
+        xml.append('      <g:brand>السوق السعودي</g:brand>')
+        xml.append(f'      <g:google_product_category>{google_cat}</g:google_product_category>')
+        xml.append(f'      <g:product_type>{product_type}</g:product_type>')
+        xml.append('      <g:shipping>')
+        xml.append('        <g:country>SA</g:country>')
+        xml.append('        <g:service>Standard</g:service>')
+        xml.append('        <g:price>0 SAR</g:price>')
+        xml.append('      </g:shipping>')
+        xml.append('    </item>')
+        
+    xml.append('  </channel>')
+    xml.append('</rss>')
     
-    # حفظ التقييمات
-    with open(REVIEWS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(all_reviews, f, ensure_ascii=False, indent=2)
-    print(f"✅ تم حفظ التقييمات في {REVIEWS_FILE}")
+    with open('product-feed.xml', 'w', encoding='utf-8') as f:
+        f.write('\n'.join(xml))
+    print("✅ تم توليد product-feed.xml بنجاح")
+
+def generate_sitemap(products):
+    """توليد sitemap.xml"""
+    base_url = "https://sherow1982.github.io/alsooq-alsaudi"
+    today = datetime.now().strftime('%Y-%m-%d')
     
-    # حفظ الأوصاف
-    with open(DESCRIPTIONS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(all_descriptions, f, ensure_ascii=False, indent=2)
-    print(f"✅ تم حفظ الأوصاف في {DESCRIPTIONS_FILE}")
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>']
+    xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">')
     
-    # توليد صفحات المنتجات
-    print("\n📦 جاري توليد صفحات المنتجات...")
-    print("─" * 60)
+    xml.append('  <url>')
+    xml.append(f'    <loc>{base_url}/</loc>')
+    xml.append(f'    <lastmod>{today}</lastmod>')
+    xml.append('    <changefreq>daily</changefreq>')
+    xml.append('    <priority>1.0</priority>')
+    xml.append('  </url>')
+    
+    xml.append('  <url>')
+    xml.append(f'    <loc>{base_url}/about.html</loc>')
+    xml.append(f'    <lastmod>{today}</lastmod>')
+    xml.append('    <changefreq>weekly</changefreq>')
+    xml.append('    <priority>0.8</priority>')
+    xml.append('  </url>')
+    
+    xml.append('  <url>')
+    xml.append(f'    <loc>{base_url}/contact.html</loc>')
+    xml.append(f'    <lastmod>{today}</lastmod>')
+    xml.append('    <changefreq>weekly</changefreq>')
+    xml.append('    <priority>0.8</priority>')
+    xml.append('  </url>')
+    
+    for product in products:
+        slug = create_slug(product)
+        encoded_slug = quote(slug)
+        image_link = fix_image_url(product['image_link'])
+        
+        xml.append('  <url>')
+        xml.append(f'    <loc>{base_url}/products/{encoded_slug}.html</loc>')
+        xml.append(f'    <lastmod>{today}</lastmod>')
+        xml.append('    <changefreq>weekly</changefreq>')
+        xml.append('    <priority>0.8</priority>')
+        xml.append('    <image:image>')
+        xml.append(f'      <image:loc>{image_link}</image:loc>')
+        xml.append(f'      <image:title>{product["title"]}</image:title>')
+        xml.append('    </image:image>')
+        xml.append('  </url>')
+        
+    xml.append('</urlset>')
+    
+    with open('sitemap.xml', 'w', encoding='utf-8') as f:
+        f.write('\n'.join(xml))
+    print("✅ تم توليد sitemap.xml بنجاح")
+
+def main():
+    """الدالة الرئيسية لتشغيل السكريبت"""
+    print("🚀 بدء توليد صفحات المنتجات...\n")
+    
+    products_dir = Path('products')
+    products_dir.mkdir(exist_ok=True)
+    
+    with open('products.json', 'r', encoding='utf-8') as f:
+        products = json.load(f)
+    
+    print(f"📦 عدد المنتجات: {len(products)}\n")
     
     success_count = 0
-    fail_count = 0
-    
-    for idx, product in enumerate(products, 1):
-        product_id = str(product['id'])
-        slug = create_slug(product)
-        file_path = os.path.join(OUTPUT_DIR, f"{slug}.html")
-        
+    for i, product in enumerate(products, 1):
         try:
-            description = all_descriptions[product_id]
-            reviews = all_reviews[product_id]
-            html_content = generate_product_html(product, description, reviews)
+            slug = create_slug(product)
+            html = generate_product_html(product)
             
+            file_path = products_dir / f"{slug}.html"
             with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(html_content)
+                f.write(html)
             
             success_count += 1
-            if idx % 50 == 0:  # عرض التقدم كل 50 منتج
-                print(f"✅ [{idx}/{len(products)}] {product['title'][:50]}...")
-        
+            if i % 100 == 0:
+                print(f"✅ تم إنشاء {i} صفحة...")
         except Exception as e:
-            fail_count += 1
-            print(f"❌ [{idx}/{len(products)}] خطأ: {str(e)}")
+            print(f"❌ خطأ في المنتج {i}: {e}")
     
-    # توليد خريطة الموقع
+    print(f"\n✅ تم إنشاء {success_count} صفحة منتج بنجاح\n")
+    
     generate_sitemap(products)
+    generate_product_feed(products)
 
     print()
     print("─" * 60)
     print("╔════════════════════════════════════════════════════════════╗")
-    print("║                    📊 النتيجة النهائية                    ║")
-    print("╠════════════════════════════════════════════════════════════╣")
-    print(f"║  ✅ نجح: {success_count:4d} صفحة                              ║")
-    print(f"║  ❌ فشل: {fail_count:4d} صفحة                               ║")
-    print(f"║  📁 المجموع: {len(products):4d} صفحة                         ║")
-    print("╠════════════════════════════════════════════════════════════╣")
-    print(f"║  📄 ملف التقييمات: {REVIEWS_FILE:30s} ║")
-    print(f"║  📄 ملف الأوصاف: {DESCRIPTIONS_FILE:32s} ║")
+    print("║                    ✨ تم الانتهاء بنجاح! ✨                  ║")
     print("╚════════════════════════════════════════════════════════════╝")
+    print("─" * 60)
     print()
-    print(f"📂 الملفات: {os.path.abspath(OUTPUT_DIR)}")
-    print(f"🌐 افتح index.html لعرض المتجر")
 
 if __name__ == "__main__":
     main()
