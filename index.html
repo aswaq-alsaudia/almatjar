@@ -669,7 +669,7 @@
                 const discount = product.price - product.sale_price;
                 const discountPercentage = Math.round((discount / product.price) * 100);
                 const slug = createSlug(product);
-                const productUrl = `/products/${slug}.html`;
+                const productUrl = `products/${slug}.html`;
 
                 return `
                     <div class="product-card" onclick="window.open('${productUrl}', '_blank')">
