@@ -484,3 +484,158 @@ footer {
         font-size: 1.6rem;
     }
 }
+
+/* Elite Search Bar */
+.search-container {
+    max-width: 800px;
+    margin: 40px auto;
+    position: relative;
+    padding: 0 20px;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    width: 100%;
+    padding: 18px 50px 18px 25px;
+    border-radius: 50px;
+    border: 2px solid #efefef;
+    font-size: 1.1rem;
+    font-family: inherit;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 10px 25px rgba(0, 108, 53, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    right: 20px;
+    color: #999;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.breadcrumbs a {
+    color: #888;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.breadcrumbs a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumbs span.separator {
+    color: #ccc;
+    font-size: 10px;
+}
+
+/* Floating WhatsApp Widget */
+.floating-whatsapp {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background: #25D366;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+    z-index: 2000;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.floating-whatsapp:hover {
+    transform: scale(1.1) rotate(10deg);
+    background: #128C7E;
+}
+
+.floating-whatsapp svg {
+    width: 32px;
+    height: 32px;
+}
+
+/* 404 Page Styling */
+.error-page {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1;
+    margin-bottom: 20px;
+    opacity: 0.1;
+}
+
+.error-title {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.error-btn {
+    margin-top: 30px;
+    background: var(--primary-color);
+    color: white;
+    padding: 15px 40px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: var(--transition);
+}
+
+.error-btn:hover {
+    background: var(--primary-light);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 108, 53, 0.2);
+}
+
+/* Skeleton Loader Animation */
+@keyframes shimmer {
+    0% {
+        background-position: -468px 0;
+    }
+
+    100% {
+        background-position: 468px 0;
+    }
+}
+
+.skeleton {
+    background: #f6f7f8;
+    background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+    background-repeat: no-repeat;
+    background-size: 800px 100%;
+    display: inline-block;
+    position: relative;
+    animation: shimmer 1s linear infinite forwards;
+}
