@@ -18,6 +18,36 @@ from urllib.parse import quote
 if sys.stdout.encoding.lower() != 'utf-8':
     sys.stdout.reconfigure(encoding='utf-8')
 
+# Cache for descriptions
+_DESCRIPTIONS = None
+
+def load_descriptions():
+    """تحميل الوصف من ملف descriptions.json"""
+    global _DESCRIPTIONS
+    if _DESCRIPTIONS is not None:
+        return _DESCRIPTIONS
+    try:
+        with open('descriptions.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            _DESCRIPTIONS = {str(k): v for k, v in data.items()}
+            return _DESCRIPTIONS
+    except Exception:
+        return {}
+
+def clean_description(title, description):
+    """تنظيف الوصف وحذف العنوان المكرر من بدايته"""
+    if not description:
+        return f"{title} - منتج عالي الجودة متوفر الآن في السوق السعودي بتوصيل سريع."
+    
+    clean_title = title.strip()
+    if description.startswith(clean_title):
+        description = description[len(clean_title):].lstrip(' :-,.،')
+    
+    if len(description) < 10:
+        return f"اكتشف {title} - منتج عالي الجودة متوفر الآن في السوق السعودي بخصم حصري وتوصيل سريع."
+        
+    return description
+
 def create_slug(product):
     """توليد slug فريد للمنتج - يجب أن يطابق تماماً ما في generate_all_pages.py"""
     stop_words = ['من', 'في', 'على', 'الى', 'عن', 'و', 'مع', 'يا', 'أيها']
@@ -42,11 +72,15 @@ def load_products():
         print(f"❌ Error loading products: {e}")
         sys.exit(1)
 
-def create_product_schema(product):
+def create_product_schema(product, descriptions):
     """إنشاء Product Schema JSON-LD متوافق مع معايير 2026"""
     product_id = product.get('id')
     title = product.get('title', '')
-    description = product.get('description', title[:150])
+    
+    # Get actual description from descriptions.json
+    raw_desc = descriptions.get(str(product_id), "")
+    description = clean_description(title, raw_desc)
+    
     image = product.get('image_link', '')
     price = product.get('sale_price', product.get('price', 0))
     
@@ -155,10 +189,15 @@ def create_local_business_schema():
     
     return json.dumps(schema, ensure_ascii=False, indent=2)
 
-def create_meta_tags(product):
+def create_meta_tags(product, descriptions):
     """إنشاء Meta Tags احترافية للسوق السعودي"""
+    product_id = product.get('id')
     title = product.get('title', '')
-    description = product.get('description', title[:150])
+    
+    # Get actual description
+    raw_desc = descriptions.get(str(product_id), "")
+    description = clean_description(title, raw_desc)
+    
     image = product.get('image_link', '')
     price = product.get('sale_price', product.get('price', 0))
     
@@ -208,10 +247,10 @@ def create_meta_tags(product):
     
     return meta_tags
 
-def inject_seo_into_html(html_content, product, lb_schema):
+def inject_seo_into_html(html_content, product, lb_schema, descriptions):
     """حقن السيو والسكيما في HTML"""
-    product_schema = create_product_schema(product)
-    meta_tags = create_meta_tags(product)
+    product_schema = create_product_schema(product, descriptions)
+    meta_tags = create_meta_tags(product, descriptions)
     
     if '</head>' not in html_content:
         return html_content
@@ -244,7 +283,7 @@ def inject_seo_into_html(html_content, product, lb_schema):
     
     return html_content.replace('</head>', seo_injection)
 
-def process_single_file(product, products_dir, lb_schema):
+def process_single_file(product, products_dir, lb_schema, descriptions):
     """Worker function for single file processing"""
     try:
         slug = create_slug(product)
@@ -262,7 +301,7 @@ def process_single_file(product, products_dir, lb_schema):
         with open(file_path, 'r', encoding='utf-8') as f:
             html_content = f.read()
         
-        updated_content = inject_seo_into_html(html_content, product, lb_schema)
+        updated_content = inject_seo_into_html(html_content, product, lb_schema, descriptions)
         
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(updated_content)
@@ -278,6 +317,7 @@ def main():
     print("="*60 + "\n")
     
     products = load_products()
+    descriptions = load_descriptions()
     products_dir = Path('products')
     lb_schema = create_local_business_schema()
     
@@ -291,7 +331,7 @@ def main():
     start_time = time.time()
     
     with ProcessPoolExecutor() as executor:
-        futures = {executor.submit(process_single_file, p, products_dir, lb_schema): p for p in products}
+        futures = {executor.submit(process_single_file, p, products_dir, lb_schema, descriptions): p for p in products}
         
         processed_count = 0
         for future in as_completed(futures):

@@ -7,13 +7,46 @@ import sys
 if sys.stdout.encoding.lower() != 'utf-8':
     sys.stdout.reconfigure(encoding='utf-8')
 
-def generate_mpn(product):
-    """توليد MPN فريد للمنتج"""
-    return f"ALS{product['id']:06d}"
+# Global cache for descriptions
+_DESCRIPTIONS_CACHE = None
 
-def generate_gtin():
-    """توليد GTIN وهمي (يُفضل استخدام القيم الحقيقية)"""
-    return ""
+def load_descriptions():
+    """تحميل الوصف من ملف descriptions.json كقاموس (ID -> text)"""
+    global _DESCRIPTIONS_CACHE
+    if _DESCRIPTIONS_CACHE is not None:
+        return _DESCRIPTIONS_CACHE
+        
+    try:
+        with open('descriptions.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            _DESCRIPTIONS_CACHE = {str(k): v for k, v in data.items()}
+            return _DESCRIPTIONS_CACHE
+    except Exception as f:
+        return {}
+
+def clean_description(title, description):
+    """تنظيف الوصف وحذف العنوان المكرر من بدايته"""
+    if not description:
+        return f"{title} - منتج عالي الجودة متوفر الآن في السوق السعودي بتوصيل سريع."
+    
+    clean_title = title.strip()
+    if description.startswith(clean_title):
+        description = description[len(clean_title):].lstrip(' :-,.،')
+    
+    if len(description) < 10:
+        return f"اكتشف {title} - منتج عالي الجودة متوفر الآن في السوق السعودي بخصم حصري وتوصيل سريع."
+        
+    # GMC prefers clean text without too many emojis or excessive symbols
+    description = re.sub(r'[^\w\s\.\,\!\?\% ر.س]', '', description)
+    return description[:4900] # GMC limit is 5000
+
+def get_product_description(product_id, title, descriptions=None):
+    """الحصول على الوصف المطابق تماماً لما هو معروض في المتجر"""
+    if descriptions is None:
+        descriptions = load_descriptions()
+    pid_str = str(product_id)
+    raw_desc = descriptions.get(pid_str, "")
+    return clean_description(title, raw_desc)
 
 def clean_product_title(title):
     """تنظيف العنوان من النصوص الترويجية"""
@@ -30,11 +63,6 @@ def escape_xml(text):
     text = text.replace('"', '&quot;')
     text = text.replace("'", '&apos;')
     return text
-
-def create_clean_description(title, price, sale_price):
-    """إنشاء وصف نظيف بدون نصوص ترويجية"""
-    discount = price - sale_price
-    return f"{title} - منتج أصلي بضمان الجودة. خصم {discount} ريال."
 
 def fix_image_url(url):
     """إصلاح رابط الصورة واستبدال الامتدادات غير المدعومة"""
@@ -87,19 +115,31 @@ def fix_product_feed():
     with open('products.json', 'r', encoding='utf-8') as f:
         products = json.load(f)
     
-    # قائمة الماركات المحظورة (عربي وإنجليزي) لتجنب تعليق الحساب
+    descriptions = load_descriptions()
+    
+    # قائمة الماركات المحظورة (عربي وإنجليزي) - قائمة شاملة جداً لتجنب تعليق الحساب
     PROHIBITED_BRANDS = [
-        # الساعات
+        # الساعات والمجوهرات
         'rolex', 'رولكس', 'hublot', 'هوبلو', 'casio', 'كاسيو', 'tissot', 'تيسو', 
         'omega', 'أوميغا', 'أوميجا', 'patek philippe', 'باتيك فيليب', 'audemars piguet', 'أوديمار بيجيه',
-        'cartier', 'كارتير', 'كارتيه',
-        # الملابس والأحذية
+        'cartier', 'كارتير', 'كارتيه', 'van cleef', 'فان كليف', 'tiffany', 'تيفاني', 'bulgari', 'بلغاري',
+        'patek', 'باتيك', 'audemars', 'أوديمار', 'vacheron', 'فاشيرون', 'breitling', 'بريتلينغ',
+        # الملابس والأحذية والحقائب
         'nike', 'نايك', 'نايكي', 'adidas', 'أديداس', 'puma', 'بوما', 'gucci', 'قوتشي',
         'prada', 'برادا', 'louis vuitton', 'لويس فيتون', 'chanel', 'شانيل', 'dior', 'ديور',
-        'zara', 'زارا', 'h&m', 'lacoste', 'لاكويت', 'tommy hilfiger', 'تومي هيلفيغر', 'تومي',
-        # العطور
+        'zara', 'زارا', 'h&m', 'lacoste', 'لاكوست', 'tommy hilfiger', 'تومي هيلفيغر', 'تومي',
+        'hermes', 'هيرميس', 'هيرمز', 'burberry', 'بربري', 'fendi', 'فندي', 'balenciaga', 'بالنسياغا',
+        'versace', 'فرزاتشي', 'reebok', 'ريبوك', 'new balance', 'نيو بالانس', 'skechers', 'سكيتشرز',
+        'yeezy', 'ييزي', 'off-white', 'أوف وايت', 'balmain', 'بالمان', 'valentino', 'فالنتينو',
+        # الإلكترونيات والهواتف
+        'apple', 'أبل', 'iphone', 'ايفون', 'ipad', 'ايباد', 'samsung', 'سامسونج', 'sony', 'سوني',
+        'panasonic', 'باناسونيك', 'huawei', 'هواوي', 'xiaomi', 'شاومي', 'hp', 'dell', 'lenovo', 'لينوفو',
+        'canon', 'كانون', 'nikon', 'نيكون', 'lg', 'ال جي', 'philips', 'فيلبس', 'فيليبس',
+        'dyson', 'دايسون', 'nintendo', 'نينتندو', 'playstation', 'بلايستيشن', 'xbox', 'اكس بوكس',
+        # العطور ومواد التجميل العالمية
         'sauvage', 'سوفاج', 'bleu de chanel', 'بلو دي شانيل', 'creed', 'كريد', 
-        'tom ford', 'توم فورد', 'versace', 'فرزاتشي', 'فان كليف', 'van cleef'
+        'tom ford', 'توم فورد', 'mac', 'ماك', 'loreal', 'لوريال', 'maybelline', 'ميبيلين',
+        'gillette', 'جيليت', 'braun', 'براون', 'oral-b', 'أورال بي', 'pantene', 'بانتين'
     ]
     
     xml = ['<?xml version="1.0" encoding="UTF-8"?>']
@@ -117,11 +157,23 @@ def fix_product_feed():
         clean_title = clean_product_title(product['title'])
         title_lower = clean_title.lower()
         
-        # التحقق من الماركات المحظورة
-        if any(brand in title_lower for brand in PROHIBITED_BRANDS):
-            print(f"🚫 Excluded brand detected: {clean_title}")
-            skip_product = True
-            excluded_count += 1
+        # التحقق من الماركات المحظورة بدقة (باستخدام حدود الكلمات للإنجليزية)
+        for brand in PROHIBITED_BRANDS:
+            if re.search(r'[a-zA-Z]', brand): # English Brand
+                if re.search(r'\b' + re.escape(brand) + r'\b', title_lower):
+                    print(f"🚫 Excluded brand detected (English): {brand} in {clean_title}")
+                    skip_product = True
+                    excluded_count += 1
+                    break
+            else: # Arabic Brand
+                if brand in title_lower:
+                    # التحقق من أن الماركة ليست جزءاً من كلمة شائعة (مثل 'ماكينة')
+                    # بالنسبة للعربية، سنعتزم أن الماركة كلمة مستقلة
+                    if re.search(r'(^|\s)' + re.escape(brand) + r'($|\s)', title_lower):
+                        print(f"🚫 Excluded brand detected (Arabic): {brand} in {clean_title}")
+                        skip_product = True
+                        excluded_count += 1
+                        break
         
         # التحقق من صلاحية المنتج
         if 'not compatible with our policy' in clean_title.lower():
@@ -144,12 +196,12 @@ def fix_product_feed():
         google_cat, product_type = get_product_category(clean_title)
         google_cat = escape_xml(google_cat)
         
-        # إنشاء وصف نظيف
-        description = create_clean_description(clean_title, product['price'], product['sale_price'])
+        # إنشاء وصف مطابق تماماً للمتجر
+        description = get_product_description(product['id'], clean_title, descriptions)
         
         # توليد المعرفات
-        mpn = generate_mpn(product)
-        gtin = generate_gtin()
+        mpn = f"ALS{product['id']:06d}"
+        gtin = ""
         
         # إضافة المنتج
         xml.append('    <item>')
