@@ -127,6 +127,23 @@ body {
     box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
 }
 
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.menu-toggle span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: var(--primary-color);
+    border-radius: 3px;
+    transition: var(--transition);
+}
+
 /* Hero Section */
 .hero {
     position: relative;
@@ -380,9 +397,45 @@ footer {
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
-    .header-content {
+    .menu-toggle {
+        display: flex;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        height: 100vh;
+        background: white;
         flex-direction: column;
-        gap: 20px;
+        padding: 100px 40px;
+        transition: var(--transition);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        gap: 30px;
+        align-items: flex-start;
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .nav-links a {
+        font-size: 1.2rem;
+        width: 100%;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+    }
+
+    .whatsapp-cta {
+        width: 100%;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .header-content {
+        justify-content: space-between;
     }
 
     .hero h1 {

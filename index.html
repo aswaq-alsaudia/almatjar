@@ -54,7 +54,7 @@
                     <img src="logo.png" alt="السوق السعودي">
                 </a>
             </div>
-            <nav class="nav-links">
+            <nav class="nav-links" id="navLinks">
                 <a href="index.html">الرئيسية</a>
                 <a href="about.html">من نحن</a>
                 <a href="contact.html">تواصل معنا</a>
@@ -66,6 +66,11 @@
                     <span>اطلب عبر واتساب</span>
                 </a>
             </nav>
+            <div class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </header>
 
@@ -200,6 +205,22 @@
     </footer>
 
     <script>
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menuToggle.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
         const PRODUCTS_PER_PAGE = 24;
         let allProducts = [];
         let displayedProducts = [];

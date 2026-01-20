@@ -150,7 +150,7 @@ def generate_product_html(product, descriptions=None):
                         <img src="../logo.png" alt="السوق السعودي">
                     </a>
                 </div>
-                <nav class="nav-links">
+                <nav class="nav-links" id="navLinks">
                     <a href="../index.html">الرئيسية</a>
                     <a href="../about.html">من نحن</a>
                     <a href="../contact.html">تواصل معنا</a>
@@ -159,6 +159,11 @@ def generate_product_html(product, descriptions=None):
                         <span>اطلب عبر واتساب</span>
                     </a>
                 </nav>
+                <div class="menu-toggle" id="menuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </header>
 
@@ -248,6 +253,24 @@ def generate_product_html(product, descriptions=None):
                 <p>جميع الحقوق محفوظة &copy; 2026 السوق السعودي - فخامة التسوق بين يديك</p>
             </div>
         </footer>
+
+        <script>
+            // Mobile Menu Toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const navLinks = document.getElementById('navLinks');
+            
+            menuToggle.addEventListener('click', () => {{
+                navLinks.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+            }});
+
+            // Close menu when clicking a link
+            document.querySelectorAll('.nav-links a').forEach(link => {{
+                link.addEventListener('click', () => {{
+                    navLinks.classList.remove('active');
+                }});
+            }});
+        </script>
     </body>
     </html>"""
 
