@@ -288,15 +288,13 @@
                             if (response.ok) {
                                 window.location.href = productUrl;
                             } else {
-                                // Product page doesn't exist, redirect to WhatsApp
-                                const message = `مرحباً، أريد الاستفسار عن: ${product.title}`;
-                                window.open(`https://wa.me/201110760081?text=${encodeURIComponent(message)}`, '_blank');
+                                const message = 'مرحباً، أريد الاستفسار عن: ' + product.title;
+                                window.open('https://wa.me/201110760081?text=' + encodeURIComponent(message), '_blank');
                             }
                         })
                         .catch(() => {
-                            // On error, also redirect to WhatsApp
-                            const message = `مرحباً، أريد الاستفسار عن: ${product.title}`;
-                            window.open(`https://wa.me/201110760081?text=${encodeURIComponent(message)}`, '_blank');
+                            const message = 'مرحباً، أريد الاستفسار عن: ' + product.title;
+                            window.open('https://wa.me/201110760081?text=' + encodeURIComponent(message), '_blank');
                         });
                 };
 
@@ -311,7 +309,7 @@
                             <span class="price-current">${product.sale_price} ر.س</span>
                             <span class="price-old">${product.price} ر.س</span>
                         </div>
-                        <a href="#" onclick="event.preventDefault(); const message = `مرحباً، أريد الاستفسار عن: ${product.title}`; window.open(`https://wa.me/201110760081?text=${encodeURIComponent(message)}`, '_blank');" class="buy-button">اطلب عبر واتساب</a>
+                        <a href="#" onclick="event.preventDefault(); const message = 'مرحباً، أريد الاستفسار عن: ' + '${product.title}'; window.open('https://wa.me/201110760081?text=' + encodeURIComponent(message), '_blank');" class="buy-button">اطلب عبر واتساب</a>
                     </div>
                 `;
 
