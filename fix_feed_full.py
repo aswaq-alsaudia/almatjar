@@ -64,7 +64,7 @@ def get_product_category(title):
 
 def generate_product_feed(products):
     """توليد ملف product-feed.xml لـ Google Merchant Center"""
-    base_url = "https://sherow1982.github.io/alsooq-alsaudi"
+    base_url = "https://aswaq-alsaudia.github.io/almatjar"
     
     xml = ['<?xml version="1.0" encoding="UTF-8"?>']
     xml.append('<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">')
