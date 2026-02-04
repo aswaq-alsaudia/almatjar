@@ -44,7 +44,7 @@ def generate_product_feed():
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
     <channel>
         <title>السوق السعودي - منتجات أصلية</title>
-        <link>https://sherow1982.github.io/alsooq-alsaudi/</link>
+        <link>https://aswaq-alsaudia.github.io/almatjar/</link>
         <description>متجر السوق السعودي للمنتجات الأصلية - شحن مجاني لجميع أنحاء المملكة</description>
         <language>ar</language>
         <lastBuildDate>''' + datetime.now().strftime('%a, %d %b %Y %H:%M:%S +0000') + '''</lastBuildDate>
@@ -74,7 +74,7 @@ def generate_product_feed():
             <g:id>{product['id']}</g:id>
             <g:title>{clean_title}</g:title>
             <g:description>{clean_description}</g:description>
-            <g:link>https://sherow1982.github.io/alsooq-alsaudi/products/{slug}.html</g:link>
+            <g:link>https://aswaq-alsaudia.github.io/almatjar/products/{slug}.html</g:link>
             <g:image_link>{product['image_link']}</g:image_link>
             <g:condition>new</g:condition>
             <g:availability>in stock</g:availability>
