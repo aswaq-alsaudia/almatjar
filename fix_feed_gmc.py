@@ -111,7 +111,7 @@ def create_slug(product):
 
 def fix_product_feed():
     """إصلاح ملف product-feed.xml بالكامل"""
-    base_url = "https://sherow1982.github.io/alsooq-alsaudi"
+    base_url = "https://aswaq-alsaudia.github.io/almatjar"
     
     # فحص وجود ملف المنتجات
     if not os.path.exists('products.json'):
