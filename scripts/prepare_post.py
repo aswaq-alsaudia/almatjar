@@ -60,7 +60,7 @@ default_msg = f"مرحباً، أريد الاستفسار عن المنتج ر�
 whatsapp_link = f"https://wa.me/{whatsapp_number}?text={requests.utils.quote(default_msg)}"
 
 # رابط المنتج
-product_url = f"https://sherow1982.github.io/alsooq-alsaudi/products/{product_id}.html"
+product_url = f"https://aswaq-alsaudia.github.io/almatjar/products/{product_id}.html"
 
 # بناء الرسالة
 message = f"🔥 {title}\n\n"
