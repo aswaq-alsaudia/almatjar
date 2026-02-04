@@ -48,7 +48,7 @@ def get_product_category(title):
 
 def fix_product_feed():
     """إصلاح ملف product-feed.xml وإعادة توليده"""
-    base_url = "https://sherow1982.github.io/alsooq-alsaudi"
+    base_url = "https://aswaq-alsaudia.github.io/almatjar"
     
     # فحص وجود ملف المنتجات
     if not os.path.exists('products.json'):
