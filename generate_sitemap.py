@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
 def generate_sitemap():
-    base_url = "https://sherow1982.github.io/alsooq-alsaudi/"
+    base_url = "https://aswaq-alsaudia.github.io/almatjar/"
     sitemap_file = "sitemap.xml"
     
     # Root elements
