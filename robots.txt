@@ -9,4 +9,4 @@ Disallow: /.gemini/
 Crawl-delay: 1
 
 # Professional Sitemap
-Sitemap: https://sherow1982.github.io/alsooq-alsaudi/sitemap.xml
+Sitemap: https://aswaq-alsaudia.github.io/almatjar/sitemap.xml
