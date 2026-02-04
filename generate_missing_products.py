@@ -65,7 +65,7 @@ def generate_product_page(product):
         }},
         "offers": {{
             "@type": "Offer",
-            "url": "https://sherow1982.github.io/alsooq-alsaudi/products/{slug}.html",
+            "url": "https://aswaq-alsaudia.github.io/almatjar/products/{slug}.html",
             "priceCurrency": "SAR",
             "price": "{product['sale_price']}",
             "priceValidUntil": "2025-12-31",
