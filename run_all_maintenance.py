@@ -4,6 +4,7 @@
 import subprocess
 import sys
 import os
+from pathlib import Path
 
 # Force UTF-8 encoding for Windows console
 if sys.platform == 'win32':
@@ -16,9 +17,18 @@ def run_script(script_name, description):
     print(f"Running: {description}")
     print(f"{'='*50}")
     
+    # تحديد المسار الكامل للملف لضمان التشغيل الصحيح
+    base_dir = Path(__file__).parent.absolute()
+    script_path = base_dir / script_name
+    
+    if not script_path.exists():
+        print(f"❌ Script {script_name} not found!")
+        return False
+
     try:
-        result = subprocess.run([sys.executable, script_name], 
-                              capture_output=True, text=True, encoding='utf-8')
+        result = subprocess.run([sys.executable, str(script_path)], 
+                              capture_output=True, text=True, encoding='utf-8',
+                              cwd=str(base_dir))
         
         if result.stdout:
             print(result.stdout)
@@ -42,20 +52,23 @@ def main():
     print("🚀 Starting alsooq-alsaudi maintenance scripts...")
     
     scripts = [
-        ("generate_missing_products.py", "Generate missing product pages"),
-        ("update_sitemap.py", "Update sitemap.xml"),
-        ("update_product_feed.py", "Update product feed XML")
+        ("generate_all_pages.py", "Regenerate all product pages (Clean Build)"),
+        ("seo_optimizer.py", "Optimize SEO and Schema"),
+        ("fix_products.py", "Fix CSS and Asset paths"),
+        ("fix_schema.py", "Fix Schema.org compliance"),
+        ("fix_html_encoding.py", "Fix HTML encoding"),
+        ("fix_feed_gmc.py", "Update product feed XML (GMC Safe)"),
+        ("generate_sitemap.py", "Update sitemap.xml"),
+        ("fix_all_footer_contacts.py", "Update footer contacts (Static pages)"),
+        ("check_status.py", "Final System Status Check")
     ]
     
     success_count = 0
     total_count = len(scripts)
     
     for script_name, description in scripts:
-        if os.path.exists(script_name):
-            if run_script(script_name, description):
-                success_count += 1
-        else:
-            print(f"❌ Script {script_name} not found!")
+        if run_script(script_name, description):
+            success_count += 1
     
     print(f"\n{'='*50}")
     print(f"SUMMARY")

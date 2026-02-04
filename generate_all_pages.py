@@ -319,10 +319,11 @@ def generate_product_html(product, descriptions=None):
             <div class="footer-section">
                 <h3>تواصل معنا</h3>
                 <p>مؤسسة alsooq-alsaudi</p>
-                <p>المملكة العربية السعودية، السعودية</p>
-                <p>الرياض 12211</p>
+                <p>مصر، الجيزة، 6 أكتوبر</p>
+                <p>الرمز البريدي: 12365</p>
                 <p style="margin-top: 15px; color: var(--accent-color); font-weight: bold; font-size: 1.1rem;">واتساب: +201110760081</p>
                 <p style="margin-top: 5px; font-size: 0.9rem;">البريد: sherow1982@gmail.com</p>
+                <p style="margin-top: 10px; font-size: 0.9rem;">الموقع: <a href="https://sherow1982.github.io/alsooq-alsaudi" target="_blank" style="color: var(--primary-color);">https://sherow1982.github.io/alsooq-alsaudi</a></p>
             </div>
         </div>
         <div class="footer-bottom">

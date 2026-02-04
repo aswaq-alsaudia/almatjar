@@ -20,17 +20,20 @@ def run_script(script_name, description):
     print(f"تشغيل: {description}")
     print(f"{'='*50}")
     
-    script_path = Path(script_name)
+    # تحديد المسار الكامل للملف
+    base_dir = Path(__file__).parent.absolute()
+    script_path = base_dir / script_name
+    
     if not script_path.exists():
         print(f"❌ الملف غير موجود: {script_name}")
         return False
     
     try:
-        result = subprocess.run([sys.executable, script_name], 
+        result = subprocess.run([sys.executable, str(script_path)], 
                               capture_output=True, 
                               text=True, 
                               encoding='utf-8',
-                              cwd=os.getcwd())
+                              cwd=str(base_dir))
         
         if result.stdout:
             print(result.stdout)
@@ -56,8 +59,13 @@ def main():
     scripts = [
         ("generate_all_pages.py", "توليد صفحات المنتجات"),
         ("seo_optimizer.py", "تحسين السيو والسكيما"),
-        ("fix_feed.py", "إنشاء ملف المنتجات XML"),
-        ("generate_sitemap.py", "إنشاء خريطة الموقع")
+        ("fix_products.py", "إصلاح مسارات CSS"),
+        ("fix_schema.py", "إصلاح Schema.org"),
+        ("fix_html_encoding.py", "إصلاح ترميز HTML"),
+        ("fix_feed_gmc.py", "إنشاء ملف المنتجات XML"),
+        ("generate_sitemap.py", "إنشاء خريطة الموقع"),
+        ("fix_all_footer_contacts.py", "تحديث بيانات الاتصال في الفوتر"),
+        ("check_status.py", "فحص حالة الموقع")
     ]
     
     success_count = 0

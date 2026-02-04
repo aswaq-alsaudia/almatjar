@@ -19,23 +19,28 @@ def run_script(script_name, description):
     print(f"▶ {description}")
     print(f"{'='*60}")
     
-    if not os.path.exists(script_name):
+    # تحديد المسار الكامل للملف لضمان التشغيل الصحيح
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    script_path = os.path.join(script_dir, script_name)
+    
+    if not os.path.exists(script_path):
         print(f"⚠️  الملف غير موجود: {script_name}")
         return False
     
     try:
         result = subprocess.run(
-            [sys.executable, script_name],
+            [sys.executable, script_path],
             capture_output=True,
             text=True,
-            encoding='utf-8'
+            encoding='utf-8',
+            cwd=script_dir
         )
         
         if result.stdout:
             print(result.stdout)
         
         if result.returncode == 0:
-            print(f"✅ تم بنجاح")
+            print("✅ تم بنجاح")
             return True
         else:
             if result.stderr:
@@ -53,14 +58,14 @@ def main():
     print("="*60)
     
     scripts = [
-        ("fix_feed_gmc.py", "1️⃣  إصلاح ملف المنتجات XML (Google Merchant)"),
-        ("fix_products.py", "2️⃣  إصلاح مسارات CSS في صفحات المنتجات"),
-        ("fix_schema.py", "3️⃣  إصلاح Schema.org في صفحات المنتجات"),
-        ("fix_html_encoding.py", "4️⃣  إصلاح ترميز HTML"),
-        ("generate_all_pages.py", "5️⃣  توليد جميع صفحات المنتجات"),
-        ("seo_optimizer.py", "6️⃣  تحسين SEO والسكيما"),
+        ("generate_all_pages.py", "1️⃣  توليد جميع صفحات المنتجات"),
+        ("seo_optimizer.py", "2️⃣  تحسين SEO والسكيما"),
+        ("fix_products.py", "3️⃣  إصلاح مسارات CSS في صفحات المنتجات"),
+        ("fix_schema.py", "4️⃣  إصلاح Schema.org في صفحات المنتجات"),
+        ("fix_html_encoding.py", "5️⃣  إصلاح ترميز HTML"),
+        ("fix_feed_gmc.py", "6️⃣  إصلاح ملف المنتجات XML (Google Merchant)"),
         ("generate_sitemap.py", "7️⃣  توليد خريطة الموقع"),
-        ("update_product_feed.py", "8️⃣  تحديث ملف المنتجات"),
+        ("fix_all_footer_contacts.py", "8️⃣  تحديث بيانات الاتصال في الفوتر"),
         ("check_status.py", "9️⃣  فحص حالة الموقع")
     ]
     
