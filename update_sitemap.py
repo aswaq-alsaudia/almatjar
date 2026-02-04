@@ -46,49 +46,49 @@ def generate_sitemap():
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <!-- Main Pages -->
     <url>
-        <loc>https://sherow1982.github.io/alsooq-alsaudi/</loc>
+        <loc>https://aswaq-alsaudia.github.io/almatjar/</loc>
         <lastmod>''' + current_date + '''</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
-        <loc>https://sherow1982.github.io/alsooq-alsaudi/about.html</loc>
+        <loc>https://aswaq-alsaudia.github.io/almatjar/about.html</loc>
         <lastmod>''' + current_date + '''</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://sherow1982.github.io/alsooq-alsaudi/contact.html</loc>
+        <loc>https://aswaq-alsaudia.github.io/almatjar/contact.html</loc>
         <lastmod>''' + current_date + '''</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://sherow1982.github.io/alsooq-alsaudi/shipping.html</loc>
+        <loc>https://aswaq-alsaudia.github.io/almatjar/shipping.html</loc>
         <lastmod>''' + current_date + '''</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://sherow1982.github.io/alsooq-alsaudi/return-policy.html</loc>
+        <loc>https://aswaq-alsaudia.github.io/almatjar/return-policy.html</loc>
         <lastmod>''' + current_date + '''</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://sherow1982.github.io/alsooq-alsaudi/terms.html</loc>
+        <loc>https://aswaq-alsaudia.github.io/almatjar/terms.html</loc>
         <lastmod>''' + current_date + '''</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://sherow1982.github.io/alsooq-alsaudi/privacy.html</loc>
+        <loc>https://aswaq-alsaudia.github.io/almatjar/privacy.html</loc>
         <lastmod>''' + current_date + '''</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://sherow1982.github.io/alsooq-alsaudi/reviews.html</loc>
+        <loc>https://aswaq-alsaudia.github.io/almatjar/reviews.html</loc>
         <lastmod>''' + current_date + '''</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
@@ -102,7 +102,7 @@ def generate_sitemap():
         try:
             slug = create_slug(product)
             sitemap_content += f'''    <url>
-        <loc>https://sherow1982.github.io/alsooq-alsaudi/products/{slug}.html</loc>
+        <loc>https://aswaq-alsaudia.github.io/almatjar/products/{slug}.html</loc>
         <lastmod>{current_date}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
