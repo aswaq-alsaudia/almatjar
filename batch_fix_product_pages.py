@@ -17,7 +17,7 @@ MODERN_FOOTER_CONTACT = '''            <div class="footer-section">
                 <p>الرمز البريدي: 12365</p>
                 <p style="margin-top: 15px; color: var(--accent-color); font-weight: bold; font-size: 1.1rem;">واتساب: +201110760081</p>
                 <p style="margin-top: 5px; font-size: 0.9rem;">البريد: sherow1982@gmail.com</p>
-                <p style="margin-top: 10px; font-size: 0.9rem;">الموقع: <a href="https://sherow1982.github.io/alsooq-alsaudi" target="_blank" style="color: var(--primary-color);">https://sherow1982.github.io/alsooq-alsaudi</a></p>
+                <p style="margin-top: 10px; font-size: 0.9rem;">الموقع: <a href="https://aswaq-alsaudia.github.io/almatjar" target="_blank" style="color: var(--primary-color);">https://aswaq-alsaudia.github.io/almatjar</a></p>
             </div>'''
 
 def fix_product_file(file_path):
@@ -52,7 +52,7 @@ def fix_product_file(file_path):
                 # Do manual replacement
                 new_content = re.sub(
                     r'<h3>تواصل معنا</h3>.*?<p style="margin-top: 5px;.*?sherow1982@gmail.com.*?</p>',
-                    '<h3>تواصل معنا</h3>\n                <p>مؤسسة alsooq-alsaudi</p>\n                <p>مصر، الجيزة، 6 أكتوبر</p>\n                <p>الرمز البريدي: 12365</p>\n                <p style="margin-top: 15px; color: var(--accent-color); font-weight: bold; font-size: 1.1rem;">واتساب: +201110760081</p>\n                <p style="margin-top: 5px; font-size: 0.9rem;">البريد: sherow1982@gmail.com</p>\n                <p style="margin-top: 10px; font-size: 0.9rem;">الموقع: <a href="https://sherow1982.github.io/alsooq-alsaudi" target="_blank" style="color: var(--primary-color);">https://sherow1982.github.io/alsooq-alsaudi</a></p>',
+                    '<h3>تواصل معنا</h3>\n                <p>مؤسسة alsooq-alsaudi</p>\n                <p>مصر، الجيزة، 6 أكتوبر</p>\n                <p>الرمز البريدي: 12365</p>\n                <p style="margin-top: 15px; color: var(--accent-color); font-weight: bold; font-size: 1.1rem;">واتساب: +201110760081</p>\n                <p style="margin-top: 5px; font-size: 0.9rem;">البريد: sherow1982@gmail.com</p>\n                <p style="margin-top: 10px; font-size: 0.9rem;">الموقع: <a href="https://aswaq-alsaudia.github.io/almatjar" target="_blank" style="color: var(--primary-color);">https://aswaq-alsaudia.github.io/almatjar</a></p>',
                     content,
                     flags=re.DOTALL
                 )
