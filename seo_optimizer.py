@@ -20,7 +20,7 @@ if sys.stdout.encoding.lower() != 'utf-8':
     sys.stdout.reconfigure(encoding='utf-8')
 
 # Configuration
-BASE_URL = "https://sherow1982.github.io/alsooq-alsaudi"
+BASE_URL = "https://aswaq-alsaudia.github.io/almatjar"
 PHONE_NUMBER = "+201110760081"
 
 # Cache for descriptions
