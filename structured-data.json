@@ -3,26 +3,26 @@
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": "https://sherow1982.github.io/alsooq-alsaudi/#website",
-      "url": "https://sherow1982.github.io/alsooq-alsaudi/",
+      "@id": "https://aswaq-alsaudia.github.io/almatjar/#website",
+      "url": "https://aswaq-alsaudia.github.io/almatjar/",
       "name": "السوق السعودي",
       "description": "متجر إلكتروني متخصص في بيع المنتجات الأصلية للعملاء في المملكة العربية السعودية",
       "inLanguage": "ar",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://sherow1982.github.io/alsooq-alsaudi/?search={search_term_string}",
+        "target": "https://aswaq-alsaudia.github.io/almatjar/?search={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     },
     {
       "@type": "Organization",
-      "@id": "https://sherow1982.github.io/alsooq-alsaudi/#organization",
+      "@id": "https://aswaq-alsaudia.github.io/almatjar/#organization",
       "name": "السوق السعودي",
       "alternateName": "alsooq-alsaudi",
-      "url": "https://sherow1982.github.io/alsooq-alsaudi/",
+      "url": "https://aswaq-alsaudia.github.io/almatjar/",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://sherow1982.github.io/alsooq-alsaudi/logo.png",
+        "url": "https://aswaq-alsaudia.github.io/almatjar/logo.png",
         "width": 200,
         "height": 200
       },
@@ -77,16 +77,16 @@
     },
     {
       "@type": "WebPage",
-      "@id": "https://sherow1982.github.io/alsooq-alsaudi/#webpage",
-      "url": "https://sherow1982.github.io/alsooq-alsaudi/",
+      "@id": "https://aswaq-alsaudia.github.io/almatjar/#webpage",
+      "url": "https://aswaq-alsaudia.github.io/almatjar/",
       "name": "السوق السعودي | فخامة التسوق وسرعة التوصيل",
       "description": "السوق السعودي - وجهتك الأولى لأفضل المنتجات الأصلية والعروض الحصرية في المملكة",
       "inLanguage": "ar",
       "isPartOf": {
-        "@id": "https://sherow1982.github.io/alsooq-alsaudi/#website"
+        "@id": "https://aswaq-alsaudia.github.io/almatjar/#website"
       },
       "about": {
-        "@id": "https://sherow1982.github.io/alsooq-alsaudi/#organization"
+        "@id": "https://aswaq-alsaudia.github.io/almatjar/#organization"
       }
     }
   ]
