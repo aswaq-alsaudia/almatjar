@@ -122,7 +122,7 @@ def generate_product_html(product, descriptions=None):
     
     description = get_product_description(product['id'], product['title'], descriptions)
     
-    product_url = f"https://sherow1982.github.io/alsooq-alsaudi/products/{encoded_slug}.html"
+    product_url = f"https://aswaq-alsaudia.github.io/almatjar/products/{encoded_slug}.html"
     
     whatsapp_message = f"""مرحباً، أريد طلب المنتج التالي:
 
@@ -323,7 +323,7 @@ def generate_product_html(product, descriptions=None):
                 <p>الرمز البريدي: 12365</p>
                 <p style="margin-top: 15px; color: var(--accent-color); font-weight: bold; font-size: 1.1rem;">واتساب: +201110760081</p>
                 <p style="margin-top: 5px; font-size: 0.9rem;">البريد: sherow1982@gmail.com</p>
-                <p style="margin-top: 10px; font-size: 0.9rem;">الموقع: <a href="https://sherow1982.github.io/alsooq-alsaudi" target="_blank" style="color: var(--primary-color);">https://sherow1982.github.io/alsooq-alsaudi</a></p>
+                <p style="margin-top: 10px; font-size: 0.9rem;">الموقع: <a href="https://aswaq-alsaudia.github.io/almatjar" target="_blank" style="color: var(--primary-color);">https://aswaq-alsaudia.github.io/almatjar</a></p>
             </div>
         </div>
         <div class="footer-bottom">
