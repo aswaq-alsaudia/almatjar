@@ -16,7 +16,7 @@ NEW_CONTACT_SECTION = '''            <div class="footer-section">
                 <p>الرمز البريدي: 12365</p>
                 <p style="margin-top: 15px; color: var(--accent-color); font-weight: bold; font-size: 1.1rem;">واتساب: +201110760081</p>
                 <p style="margin-top: 5px; font-size: 0.9rem;">البريد: sherow1982@gmail.com</p>
-                <p style="margin-top: 10px; font-size: 0.9rem;">الموقع: <a href="https://sherow1982.github.io/alsooq-alsaudi" target="_blank" style="color: var(--primary-color);">https://sherow1982.github.io/alsooq-alsaudi</a></p>
+                <p style="margin-top: 10px; font-size: 0.9rem;">الموقع: <a href="https://aswaq-alsaudia.github.io/almatjar" target="_blank" style="color: var(--primary-color);">https://aswaq-alsaudia.github.io/almatjar</a></p>
             </div>'''
 
 def fix_html_file(file_path):
@@ -93,7 +93,7 @@ def main():
         print(f"  📋 الرمز البريدي: 12365")
         print(f"  📞 واتساب: +201110760081")
         print(f"  📧 بريد: sherow1982@gmail.com")
-        print(f"  🔗 الموقع: https://sherow1982.github.io/alsooq-alsaudi")
+        print(f"  🔗 الموقع: https://aswaq-alsaudia.github.io/almatjar")
         print(f"\n💡 الآن استخدم:")
         print(f"  git add -A")
         print(f"  git commit -m 'تصحيح بيانات الاتصال في جميع الصفحات'")
