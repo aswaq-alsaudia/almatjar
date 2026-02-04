@@ -1,12 +1,2 @@
 User-agent: *
-Allow: /
-Disallow: /admin/
-Disallow: /*.json$
-Disallow: /tmp/
-Disallow: /.gemini/
-
-# Crawl-delay for aggressive bots
-Crawl-delay: 1
-
-# Professional Sitemap
-Sitemap: https://aswaq-alsaudia.github.io/almatjar/sitemap.xml
+Disallow:
